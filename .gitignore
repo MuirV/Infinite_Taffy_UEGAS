@@ -1,0 +1,17 @@
+# --- 虚幻引擎临时与生成文件 ---
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# --- 平台特定与编译器生成 ---
+.vscode/
+.vs/
+.idea/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
