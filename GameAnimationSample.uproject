@@ -7,7 +7,10 @@
 		{
 			"Name": "GameAnimationSample",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
@@ -65,7 +68,11 @@
 		{
 			"Name": "KawaiiPhysics",
 			"Enabled": true,
-			"MarketplaceURL": "KawaiiPhysics : Simple fake Physics for UnrealEngine4&5"
+			"MarketplaceURL": "com.epicgames.launcher://ue/Fab/product/f870c07e-0a02-4a78-a888-e52a22794572"
+		},
+		{
+			"Name": "UNTLink",
+			"Enabled": true
 		}
 	],
 	"EpicSampleNameHash": "1673045636"
