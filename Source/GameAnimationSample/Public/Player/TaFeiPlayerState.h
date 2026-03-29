@@ -11,6 +11,7 @@
  * 
  */
 
+class UCharacterClassData;
 class UTaFeiAbilitySystemComponent;
 class UTaFeiAttributeSet;
 UCLASS()
@@ -38,5 +39,14 @@ protected:
 
 	//防止重复初始化的安全锁
 	bool bGASInitialized = false;
-	
+
+	// 暴露给蓝图，用于在编辑器里把填好的 DataAsset 塞进来
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
+	TObjectPtr<UCharacterClassData> CharacterData;
+
+	// 辅助函数：初始化属性 (应用 GE)
+	void InitializeAttributes();
+    
+	// 辅助函数：赋予初始技能 (授予 GA)
+	void AddStartupAbilities();
 };
