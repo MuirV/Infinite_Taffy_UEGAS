@@ -25,7 +25,7 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	UTaFeiAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
-	// Key : 供纯蓝图角色调用，完成 Owner 和 Avatar 的绑定
+	// Key : 供纯蓝图角色调用，完成 Owner 和 Avatar 的绑定 且暴露给蓝图，让 PC_Sandbox 在 Possess 之后调用
 	UFUNCTION(BlueprintCallable, Category = "GAS|Initialization")
 	void InitializeGASForPawn(APawn* AvatarPawn);
 
