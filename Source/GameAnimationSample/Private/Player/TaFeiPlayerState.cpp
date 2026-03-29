@@ -28,12 +28,22 @@ UAbilitySystemComponent* ATaFeiPlayerState::GetAbilitySystemComponent() const
 
 void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 {
+
+	// 如果已经初始化过，或者组件/Pawn无效，直接退出
+	if (bGASInitialized || !AbilitySystemComponent || !AvatarPawn)
+	{
+		return;
+	}
+	
 	if (AbilitySystemComponent && AvatarPawn)
 	{
 		// GAS 最重要的一步：绑定灵魂(Owner)和肉体(Avatar)
 		// Owner 是 PlayerState(this)，Avatar 是你的蓝图角色(AvatarPawn)
 		AbilitySystemComponent->InitAbilityActorInfo(this, AvatarPawn);
 
+		// 锁上，确保这一段肉体只绑定一次
+		bGASInitialized = true;
+		
 		// 打印日志，方便我们在编辑器里确认绑定成功
 		UE_LOG(LogTemp, Warning, TEXT("GAS 灵魂注入成功！Owner: %s, Avatar: %s"), *GetName(), *AvatarPawn->GetName());
 	}

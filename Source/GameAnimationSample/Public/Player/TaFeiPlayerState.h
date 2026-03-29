@@ -35,5 +35,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UTaFeiAttributeSet> AttributeSet;
+
+	//防止重复初始化的安全锁
+	bool bGASInitialized = false;
 	
 };
