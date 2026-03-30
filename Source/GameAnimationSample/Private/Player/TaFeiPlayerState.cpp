@@ -11,13 +11,13 @@ ATaFeiPlayerState::ATaFeiPlayerState()
 	// Aura 动作游戏标准：提高网络同步频率，防止动画和伤害脱节
 	NetUpdateFrequency = 100.f;
 
-	// 1. 实例化 ASC
+	//实例化 ASC
 	AbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	// 联机动作游戏推荐 Mixed 模式
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	// 2. 实例化 AttributeSet
+	// 实例化 AttributeSet
 	AttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
 }
 
@@ -43,7 +43,7 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 		bGASInitialized = true;
 		
 	}
-	// 2. ★ 核心：只有服务器（Authority）才有资格赋予技能和初始属性 ★
+	//只有服务器（Authority）才有资格赋予技能和初始属性 
 	if (HasAuthority())
 	{
 		InitializeAttributes();
@@ -68,9 +68,11 @@ void ATaFeiPlayerState::InitializeAttributes()
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
 
-	// 生成 GE 的实例 (Spec)
-	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(CharacterData->PrimaryAttributes, 1.f, ContextHandle);
-    
+	// 【重构】：将原来的 1.f 改为 GetPlayerLevel()
+	float CurrentLevel = static_cast<float>(GetPlayerLevel());
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
+		CharacterData->PrimaryAttributes, CurrentLevel, ContextHandle);
+	
 	// 将 GE 应用给自己
 	if (SpecHandle.IsValid())
 	{
@@ -94,7 +96,7 @@ void ATaFeiPlayerState::AddStartupAbilities()
 		if (AbilityInfo.AbilityClass)
 		{
 			// 给 ASC 赋予这个技能，1 代表技能等级是 1 级
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, 1);
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, GetPlayerLevel());
 
 			// ★ 核心操作：如果配置了输入标签，就把它注入到技能实例的动态标签中
 			if (AbilityInfo.InputTag.IsValid())

@@ -22,6 +22,8 @@ FTaFeiGameplayEffectContext* FTaFeiGameplayEffectContext::Duplicate() const
 bool FTaFeiGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
 {
 	// 使用位掩码（Bitmask）来优化网络带宽
+	// GAS 所有跨网络的数据：
+	// 必须自己序列化！
 	uint32 RepBits{ 0 };
 	if (Ar.IsSaving())
 	{

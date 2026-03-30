@@ -30,6 +30,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GAS|Initialization")
 	void InitializeGASForPawn(APawn* AvatarPawn);
 
+	// 简单实现获取等级的 Getter
+	UFUNCTION(BlueprintCallable, Category = "TaFei|PlayerState")
+	int32 GetPlayerLevel() const { return Level; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	TObjectPtr<UTaFeiAbilitySystemComponent> AbilitySystemComponent;
@@ -44,6 +48,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
 	TObjectPtr<UCharacterClassData> CharacterData;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "TaFei|PlayerState")
+	int32 Level = 1; // 默认 1 级
+	
 	// 辅助函数：初始化属性 (应用 GE)
 	void InitializeAttributes();
     
