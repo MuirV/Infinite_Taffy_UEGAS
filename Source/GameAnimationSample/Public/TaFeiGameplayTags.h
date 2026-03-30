@@ -19,6 +19,9 @@ public:
 	FGameplayTag InputTag_F;
 	FGameplayTag InputTag_Ultimate;
 
+	// ---------------- 伤害标签 (Damage) ----------------
+	FGameplayTag Damage_Physical; // 物理伤害
+
 	// ---------------- 技能标签 (Abilities) ----------------
 	// 连招系统
 	FGameplayTag Abilities_Attack_ComboLMB;   // 连续左键

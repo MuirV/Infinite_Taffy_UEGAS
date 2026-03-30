@@ -17,6 +17,10 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("InputTag.Ultimate"), FString("Input Tag for Ultimate Ability"));
 
+	/* 伤害 Tags */
+	GameplayTags.Damage_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Physical"), FString("Physical Damage Type"));
+	
 	/* 技能 Tags */
 	GameplayTags.Abilities_Attack_ComboLMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Attack.ComboLMB"), FString("Left Mouse Button Combo"));
