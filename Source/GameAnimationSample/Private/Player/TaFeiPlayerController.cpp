@@ -2,12 +2,16 @@
 
 
 #include "Player/TaFeiPlayerController.h"
-
+#include "EnhancedInputSubsystems.h"
+#include "Input/TaFeiInputComponent.h"
+#include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "Player/TaFeiPlayerState.h"
 
 ATaFeiPlayerController::ATaFeiPlayerController()
 {
 	bReplicates = true;
+
+	
 }
 
 void ATaFeiPlayerController::OnPossess(APawn* InPawn)
@@ -43,5 +47,55 @@ void ATaFeiPlayerController::TryInitGAS()
 	if (TaFeiPS && CurrentPawn)
 	{
 		TaFeiPS->InitializeGASForPawn(CurrentPawn);
+	}
+}
+void ATaFeiPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	// 获取自定义的输入组件
+	UTaFeiInputComponent* TaFeiInputComponent = CastChecked<UTaFeiInputComponent>(InputComponent);
+
+	// 绑定技能输入！把按下的事件路由给我们的 AbilityInputTag 对应函数
+	if (InputConfig)
+	{
+		TaFeiInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
+	}
+}
+
+// 辅助函数：安全获取 ASC
+UTaFeiAbilitySystemComponent* ATaFeiPlayerController::GetASC()
+{
+	if (TaFeiASC == nullptr)
+	{
+		TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(GetPlayerState<ATaFeiPlayerState>()->GetAbilitySystemComponent());
+	}
+	return TaFeiASC;
+}
+
+void ATaFeiPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	if (GetASC())
+	{
+		// 调用我们自定义的 Tag 版函数
+		GetASC()->AbilityInputTagPressed(InputTag);
+	}
+}
+
+void ATaFeiPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	if (GetASC())
+	{
+		
+		GetASC()->AbilityInputTagReleased(InputTag);
+	}
+}
+
+void ATaFeiPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	if (GetASC())
+	{
+		
+		GetASC()->AbilityInputTagHeld(InputTag);
 	}
 }
