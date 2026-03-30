@@ -88,12 +88,21 @@ void ATaFeiPlayerState::AddStartupAbilities()
 	}
 
 	// 遍历我们在 DataAsset 里配置的所有初始技能
-	for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterData->StartupAbilities)
+	for (const FTaFeiAbilityInfo& AbilityInfo : CharacterData->StartupAbilities)
 	{
-		if (AbilityClass)
+		// 确保技能类不是空的
+		if (AbilityInfo.AbilityClass)
 		{
 			// 给 ASC 赋予这个技能，1 代表技能等级是 1 级
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, 1);
+
+			// ★ 核心操作：如果配置了输入标签，就把它注入到技能实例的动态标签中
+			if (AbilityInfo.InputTag.IsValid())
+			{
+				AbilitySpec.DynamicAbilityTags.AddTag(AbilityInfo.InputTag);
+			}
+
+			// 正式把技能交给 ASC
 			AbilitySystemComponent->GiveAbility(AbilitySpec);
 		}
 	}
