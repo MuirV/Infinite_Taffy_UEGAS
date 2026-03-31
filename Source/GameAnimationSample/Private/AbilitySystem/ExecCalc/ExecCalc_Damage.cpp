@@ -4,7 +4,7 @@
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "TaFeiGameplayTags.h"
-// 1. 定义一个用于捕获属性的结构体
+//  定义一个用于捕获属性的结构体
 struct TaFeiDamageStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageMultiplier);
@@ -19,21 +19,21 @@ struct TaFeiDamageStatics
 	}
 };
 
-// 2. 静态获取该结构体的函数
+// 静态获取该结构体的函数
 static const TaFeiDamageStatics& DamageStatics()
 {
 	static TaFeiDamageStatics Statics;
 	return Statics;
 }
 
-// 3. 构造函数：告诉引擎我们要捕获哪些属性
+//  构造函数：告诉引擎我们要捕获哪些属性
 UExecCalc_Damage::UExecCalc_Damage()
 {
 	RelevantAttributesToCapture.Add(DamageStatics().DamageMultiplierDef);
 	RelevantAttributesToCapture.Add(DamageStatics().DamageReductionDef);
 }
 
-// 4. 核心计算逻辑
+// 核心计算逻辑
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionModifiers) const
 {
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
@@ -42,11 +42,11 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluationParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluationParameters.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
-	// ---------- A. 获取基础伤害 ----------
+	// ----------获取基础伤害 ----------
 	// 从 SetByCaller 中获取我们在 GA 里打包好的物理伤害数值
 	float BaseDamage = Spec.GetSetByCallerMagnitude(FTaFeiGameplayTags::Get().Damage_Physical, false, 0.f);
 
-	// ---------- B. 获取捕获的属性 ----------
+	// ---------- 获取捕获的属性 ----------
 	float SourceDamageMultiplier = 1.f; // 默认 1 倍
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageMultiplierDef, EvaluationParameters, SourceDamageMultiplier);
 	SourceDamageMultiplier = FMath::Max<float>(SourceDamageMultiplier, 0.f);
@@ -55,11 +55,11 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageReductionDef, EvaluationParameters, TargetDamageReduction);
 	TargetDamageReduction = FMath::Clamp<float>(TargetDamageReduction, 0.f, 1.f); // 确保减伤在 0~1 之间 (例如 0.9 代表减伤 90%)
 
-	// ---------- C. 计算最终伤害 ----------
+	// ---------- 计算最终伤害 ----------
 	// 公式：最终伤害 = 基础伤害 * 攻击者伤害增幅 * (1 - 受击者减伤比例)
 	float FinalDamage = BaseDamage * SourceDamageMultiplier * (1.f - TargetDamageReduction);
 
-	// ---------- D. 输出结果到 IncomingDamage ----------
+	// ----------  输出结果到 IncomingDamage ----------
 	if (FinalDamage > 0.f)
 	{
 		// 将计算好的最终伤害，以 Additive (加法) 的形式修改给 IncomingDamage
