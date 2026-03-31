@@ -38,17 +38,12 @@ public:
 	FGameplayTag Attributes_Vital_Health;
 	FGameplayTag Attributes_Vital_UltimateEnergy; // 大招能量
 
-	// Montage Tags
-	FGameplayTag Montage_Attack_LMB_1;
-	FGameplayTag Montage_Attack_LMB_2;
-	FGameplayTag Montage_Attack_LMB_3;
-	FGameplayTag Montage_Attack_F_1;
-	FGameplayTag Montage_Attack_F_2;
-	FGameplayTag Montage_Attack_Mixed_1;
-	FGameplayTag Montage_Attack_Mixed_2;
-	FGameplayTag Montage_Attack_Mixed_3;
-	FGameplayTag Montage_Ultimate;
-
+	// Event Tags  考虑到用Section做动画
+	FGameplayTag Event_Melee_Hit;
+	FGameplayTag Event_Combo_WindowOpen;
+	FGameplayTag Event_Combo_WindowClosed;
+	FGameplayTag Event_Ultimate_Release;    // 松开按键，释放大招事件 后续拓展能根据蓄力时间增加伤害(有最大上限2s达到最大)，且大招本身能够破防敌人
+	
 protected:
 	static FTaFeiGameplayTags GameplayTags;
 };

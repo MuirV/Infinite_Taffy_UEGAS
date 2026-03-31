@@ -50,36 +50,16 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Vital.UltimateEnergy"), FString("Amount of Ultimate Energy"));
 
 
-	/* Montage Tags */
+	/* Event Tags ▼ */
+	GameplayTags.Event_Melee_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	   FName("Event.Melee.Hit"), FString("Event triggered when melee attack hits"));
 
-	// LMB Combo
-	GameplayTags.Montage_Attack_LMB_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.LMB.1"), FString("LMB Combo Step 1"));
+	GameplayTags.Event_Combo_WindowOpen = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	   FName("Event.Combo.WindowOpen"), FString("Window for next combo input opens"));
 
-	GameplayTags.Montage_Attack_LMB_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.LMB.2"), FString("LMB Combo Step 2"));
+	GameplayTags.Event_Combo_WindowClosed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	   FName("Event.Combo.WindowClosed"), FString("Window for next combo input closes"));
 
-	GameplayTags.Montage_Attack_LMB_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.LMB.3"), FString("LMB Combo Step 3"));
-
-	// F Combo
-	GameplayTags.Montage_Attack_F_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.F.1"), FString("F Combo Step 1"));
-
-	GameplayTags.Montage_Attack_F_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.F.2"), FString("F Combo Step 2"));
-
-	// Mixed Combo
-	GameplayTags.Montage_Attack_Mixed_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.Mixed.1"), FString("Mixed Combo Step 1"));
-
-	GameplayTags.Montage_Attack_Mixed_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.Mixed.2"), FString("Mixed Combo Step 2"));
-
-	GameplayTags.Montage_Attack_Mixed_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Attack.Mixed.3"), FString("Mixed Combo Step 3"));
-
-	// Ultimate
-	GameplayTags.Montage_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Montage.Ultimate"), FString("Ultimate Montage"));
+	GameplayTags.Event_Ultimate_Release = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	   FName("Event.Ultimate.Release"), FString("Event triggered when the ultimate key is released"));
 }
