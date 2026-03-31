@@ -38,6 +38,17 @@ public:
 	FGameplayTag Attributes_Vital_Health;
 	FGameplayTag Attributes_Vital_UltimateEnergy; // 大招能量
 
+	// Montage Tags
+	FGameplayTag Montage_Attack_LMB_1;
+	FGameplayTag Montage_Attack_LMB_2;
+	FGameplayTag Montage_Attack_LMB_3;
+	FGameplayTag Montage_Attack_F_1;
+	FGameplayTag Montage_Attack_F_2;
+	FGameplayTag Montage_Attack_Mixed_1;
+	FGameplayTag Montage_Attack_Mixed_2;
+	FGameplayTag Montage_Attack_Mixed_3;
+	FGameplayTag Montage_Ultimate;
+
 protected:
 	static FTaFeiGameplayTags GameplayTags;
 };
