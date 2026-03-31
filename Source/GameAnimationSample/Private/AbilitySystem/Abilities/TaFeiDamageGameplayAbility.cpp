@@ -36,7 +36,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
 }
 
-UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar(const FGameplayTag& MontageTag)
+UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
 {
 	// 获取肉体 (BP_SandboxCharacter)
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
@@ -45,7 +45,7 @@ UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar(const FGame
 	if (AvatarActor && AvatarActor->Implements<UTaFeiCombatInterface>())
 	{
 		// 通过接口向角色索要蒙太奇
-		return ITaFeiCombatInterface::Execute_GetCombatMontageByTag(AvatarActor, MontageTag);
+		return ITaFeiCombatInterface::Execute_GetCombatMontageByTag(AvatarActor, CombatMontageTag);
 	}
 	
 	// 如果角色没实现接口，或者找不到，返回空

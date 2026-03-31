@@ -22,7 +22,7 @@ public:
 
 	// ★ 新增：给蓝图 GA 提供一个快捷获取蒙太奇的节点
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
-	UAnimMontage* RetrieveMontageFromAvatar(const FGameplayTag& MontageTag);
+	UAnimMontage* RetrieveMontageFromAvatar();
 
 protected:
 	// 指定这个技能要应用哪个 GameplayEffect 来扣血（通常填一个只有 SetByCaller 属性的 GE）
@@ -33,4 +33,8 @@ protected:
 	// 比如：Key = "Damage.Physical", Value = 查表的 ScalableFloat
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Damage")
 	TMap<FGameplayTag, FScalableFloat> DamageTypes;
+
+	// ★ 新增：这个技能专属的连招蒙太奇标签
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Combat")
+	FGameplayTag CombatMontageTag;
 };
