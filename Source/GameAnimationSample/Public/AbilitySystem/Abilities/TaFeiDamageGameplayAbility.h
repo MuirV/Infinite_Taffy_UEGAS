@@ -20,6 +20,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
 	void CauseDamage(AActor* TargetActor);
 
+	// ★ 新增：给蓝图 GA 提供一个快捷获取蒙太奇的节点
+	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
+	UAnimMontage* RetrieveMontageFromAvatar(const FGameplayTag& MontageTag);
+
 protected:
 	// 指定这个技能要应用哪个 GameplayEffect 来扣血（通常填一个只有 SetByCaller 属性的 GE）
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Damage")

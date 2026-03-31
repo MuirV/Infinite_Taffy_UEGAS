@@ -101,7 +101,7 @@ void ATaFeiPlayerState::AddStartupAbilities()
 			// ★ 核心操作：如果配置了输入标签，就把它注入到技能实例的动态标签中
 			if (AbilityInfo.InputTag.IsValid())
 			{
-				AbilitySpec.DynamicAbilityTags.AddTag(AbilityInfo.InputTag);
+				AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
 			}
 
 			// 正式把技能交给 ASC

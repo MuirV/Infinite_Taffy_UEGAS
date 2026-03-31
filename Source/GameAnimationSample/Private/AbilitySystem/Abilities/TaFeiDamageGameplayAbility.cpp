@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/TaFeiDamageGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Interaction/TaFeiCombatInterface.h" // 引入你的接口
 #include "AbilitySystemComponent.h"
 
 void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
@@ -33,4 +34,20 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 
 	//把打包好的伤害 GE 应用给目标
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
+}
+
+UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar(const FGameplayTag& MontageTag)
+{
+	// 获取肉体 (BP_SandboxCharacter)
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+
+	// 检查肉体是否实现了我们的战斗接口
+	if (AvatarActor && AvatarActor->Implements<UTaFeiCombatInterface>())
+	{
+		// 通过接口向角色索要蒙太奇
+		return ITaFeiCombatInterface::Execute_GetCombatMontageByTag(AvatarActor, MontageTag);
+	}
+	
+	// 如果角色没实现接口，或者找不到，返回空
+	return nullptr;
 }

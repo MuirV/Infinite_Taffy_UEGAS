@@ -16,7 +16,7 @@ void UTaFeiAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& In
 	for (FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
 		// 检查这个技能是否绑定了这个输入 Tag
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			// 通知技能内部：按键被按下了
 			AbilitySpecInputPressed(AbilitySpec);
@@ -36,7 +36,7 @@ void UTaFeiAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& Input
 
 	for (FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
@@ -53,7 +53,7 @@ void UTaFeiAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& I
 
 	for (FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			// 通知技能内部：按键松开了
 			AbilitySpecInputReleased(AbilitySpec);

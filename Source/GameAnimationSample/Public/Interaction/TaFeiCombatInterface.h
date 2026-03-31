@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "GameplayTagContainer.h" // 必须包含这个才能用 FGameplayTag
 #include "TaFeiCombatInterface.generated.h"
 
 // This class does not need to be modified.
@@ -25,4 +26,8 @@ public:
 	// 获取当前角色的等级 (纯虚函数，需要在 BP 或 C++ 中实现)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	int32 GetPlayerLevel() const;
+
+	// 新增：让 GA 来索要蒙太奇的接口
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
+	UAnimMontage* GetCombatMontageByTag(const FGameplayTag& MontageTag);
 };
