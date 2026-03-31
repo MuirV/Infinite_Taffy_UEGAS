@@ -5,12 +5,12 @@
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "TaFeiGameplayTags.h"
 //  定义一个用于捕获属性的结构体
-struct TaFeiDamageStatics
+struct FTaFeiDamageStatics
 {
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageMultiplier);
 	DECLARE_ATTRIBUTE_CAPTUREDEF(DamageReduction);
 
-	TaFeiDamageStatics()
+	FTaFeiDamageStatics()
 	{
 		// 捕获攻击者 (Source) 的伤害增幅倍率
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UTaFeiAttributeSet, DamageMultiplier, Source, false);
@@ -20,9 +20,9 @@ struct TaFeiDamageStatics
 };
 
 // 静态获取该结构体的函数
-static const TaFeiDamageStatics& DamageStatics()
+static const FTaFeiDamageStatics& DamageStatics()
 {
-	static TaFeiDamageStatics Statics;
+	static FTaFeiDamageStatics Statics;
 	return Statics;
 }
 
