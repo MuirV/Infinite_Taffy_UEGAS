@@ -30,4 +30,8 @@ public:
 	// 新增：让 GA 来索要蒙太奇的接口
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	UAnimMontage* GetCombatMontageByTag(const FGameplayTag& MontageTag);
+
+	// 获取战斗插槽的位置 (例如武器尖端、左手、右手，用来生成特效或进行伤害判定)
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
+	FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
 };
