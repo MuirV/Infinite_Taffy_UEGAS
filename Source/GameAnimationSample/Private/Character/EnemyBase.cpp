@@ -13,7 +13,7 @@ AEnemyBase::AEnemyBase()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false; 
 
-	// --- 1. 默认网格体与胶囊体设置 ---
+	// --- 默认网格体与胶囊体设置 ---
 	// 让敌人的胶囊体忽略摄像机碰撞，防止视角推近时穿模抖动
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	
@@ -23,7 +23,7 @@ AEnemyBase::AEnemyBase()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
 
-	// --- 2. 实例化 GAS 组件 ---
+	// --- 实例化 GAS 组件 ---
 	AbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
 	

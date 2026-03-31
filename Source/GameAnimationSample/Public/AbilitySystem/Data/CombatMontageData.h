@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
-#include "TaFeiCombatMontageData.generated.h"
+#include "CombatMontageData.generated.h"
 
 
 
@@ -29,7 +29,7 @@ struct FTaFeiMontageInfo
  * 战斗数据资产：存放角色或武器的所有攻击蒙太奇
  */
 UCLASS(BlueprintType)
-class GAMEANIMATIONSAMPLE_API UTaFeiCombatMontageData : public UDataAsset
+class GAMEANIMATIONSAMPLE_API UCombatMontageData : public UDataAsset
 {
 	GENERATED_BODY()
 public:

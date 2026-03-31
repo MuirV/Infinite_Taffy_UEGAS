@@ -1,9 +1,9 @@
 // Copyright Daisy
 
 
-#include "AbilitySystem/Data/TaFeiCombatMontageData.h"
+#include "AbilitySystem/Data/CombatMontageData.h"
 
-UAnimMontage* UTaFeiCombatMontageData::GetMontageByTag(const FGameplayTag& Tag) const
+UAnimMontage* UCombatMontageData::GetMontageByTag(const FGameplayTag& Tag) const
 {
 	// 遍历数组，找到 Tag 匹配的蒙太奇并返回
 	for (const FTaFeiMontageInfo& Info : CombatMontages)

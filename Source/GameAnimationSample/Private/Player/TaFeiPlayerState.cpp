@@ -35,7 +35,7 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 	
 	if (AbilitySystemComponent && AvatarPawn)
 	{
-		// GAS 最重要的一步：绑定灵魂(Owner)和肉体(Avatar)
+		// GAS 最重要  绑定灵魂(Owner)和肉体(Avatar)
 		// Owner 是 PlayerState(this)，Avatar 是你的蓝图角色(AvatarPawn)
 		AbilitySystemComponent->InitAbilityActorInfo(this, AvatarPawn);
 
