@@ -9,6 +9,7 @@
 ATaFeiPlayerState::ATaFeiPlayerState()
 {
 	// Aura 动作游戏标准：提高网络同步频率，防止动画和伤害脱节
+	// ReSharper disable once CppDeprecatedEntity
 	NetUpdateFrequency = 100.f;
 
 	//实例化 ASC
