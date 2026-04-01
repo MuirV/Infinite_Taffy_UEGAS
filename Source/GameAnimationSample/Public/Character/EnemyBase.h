@@ -38,6 +38,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
 	TObjectPtr<UTaFeiAttributeSet> AttributeSet;
 
+
+	// 敌人的初始属性 GE
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
+	TSubclassOf<class UGameplayEffect> DefaultAttributes;
+	
 	// --- 基础属性与经验值 ---
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	int32 Level = 1;

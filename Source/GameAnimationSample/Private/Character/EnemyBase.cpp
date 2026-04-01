@@ -80,8 +80,19 @@ void AEnemyBase::InitializeGAS()
 	{
 		// 对于敌人，灵魂(Owner)和肉体(Avatar)都是它自己
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-
-		// TODO: 未来在这里应用敌人的初始属性和初始技能
+		
+		// 应用初始属性 GE
+		if (HasAuthority() && DefaultAttributes)
+		{
+			FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+			ContextHandle.AddSourceObject(this);
+			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, GetPlayerLevel(), ContextHandle);
+			
+			if (SpecHandle.IsValid())
+			{
+				AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			}
+		}
 	}
 }
 
