@@ -86,7 +86,7 @@ void AEnemyBase::InitializeGAS()
 		{
 			FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 			ContextHandle.AddSourceObject(this);
-			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, GetPlayerLevel(), ContextHandle);
+			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, ITaFeiCombatInterface::Execute_GetPlayerLevel(this), ContextHandle);
 			
 			if (SpecHandle.IsValid())
 			{
