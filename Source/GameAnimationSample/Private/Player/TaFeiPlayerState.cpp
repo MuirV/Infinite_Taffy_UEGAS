@@ -22,7 +22,7 @@ ATaFeiPlayerState::ATaFeiPlayerState()
 	// 实例化 AttributeSet
 	AttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
 
-	NetUpdateFrequency = 100.f;
+	SetNetUpdateFrequency(100.f);
 }
 
 UAbilitySystemComponent* ATaFeiPlayerState::GetAbilitySystemComponent() const
