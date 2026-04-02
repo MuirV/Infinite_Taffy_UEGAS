@@ -31,3 +31,4 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnAttributeChangedSignature OnMaxUltimateEnergyChanged;
 };
+
