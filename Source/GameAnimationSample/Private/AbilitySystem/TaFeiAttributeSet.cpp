@@ -42,13 +42,34 @@ void UTaFeiAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	// 注册需要网络同步的属性
 	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Health, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Mana, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+	
 	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, UltimateEnergy, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxUltimateEnergy, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, DamageMultiplier, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, DamageReduction, COND_None, REPNOTIFY_Always);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+
+	//Primary Attributes
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Strength, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Intelligence, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Resilience, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Vigor, COND_None, REPNOTIFY_Always);
+
+	//Secondary Attributes
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, ArmorPenetration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, BlockChance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, CriticalHitChance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, CriticalHitResistance, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, ManaRegeneration, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UTaFeiAttributeSet, MaxMana, COND_None, REPNOTIFY_Always);
+	
 }
 
 void UTaFeiAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -110,7 +131,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	FEffectProperties Props;
 	SetEffectProperties(Data, Props);
 
-	// ★ 钳制当前值，防止溢出或变负
+	// 钳制当前值，防止溢出或变负
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
@@ -189,4 +210,63 @@ void UTaFeiAttributeSet::OnRep_DamageMultiplier(const FGameplayAttributeData& Ol
 void UTaFeiAttributeSet::OnRep_DamageReduction(const FGameplayAttributeData& OldReduction) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, DamageReduction, OldReduction);
+}
+void UTaFeiAttributeSet::OnRep_Strength(const FGameplayAttributeData& OldStrength) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, Strength, OldStrength);
+}
+
+void UTaFeiAttributeSet::OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, Intelligence, OldIntelligence);
+}
+
+void UTaFeiAttributeSet::OnRep_Resilience(const FGameplayAttributeData& OldResilience) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, Resilience, OldResilience);
+}
+
+void UTaFeiAttributeSet::OnRep_Vigor(const FGameplayAttributeData& OldVigor) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, Vigor, OldVigor);
+}
+
+void UTaFeiAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, Armor, OldArmor);
+}
+
+void UTaFeiAttributeSet::OnRep_ArmorPenetration(const FGameplayAttributeData& OldArmorPenetration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, ArmorPenetration, OldArmorPenetration);
+}
+
+void UTaFeiAttributeSet::OnRep_BlockChance(const FGameplayAttributeData& OldBlockChance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, BlockChance, OldBlockChance);
+}
+
+void UTaFeiAttributeSet::OnRep_CriticalHitChance(const FGameplayAttributeData& OldCriticalHitChance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, CriticalHitChance, OldCriticalHitChance);
+}
+
+void UTaFeiAttributeSet::OnRep_CriticalHitDamage(const FGameplayAttributeData& OldCriticalHitDamage) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, CriticalHitDamage, OldCriticalHitDamage);
+}
+
+void UTaFeiAttributeSet::OnRep_CriticalHitResistance(const FGameplayAttributeData& OldCriticalHitResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, CriticalHitResistance, OldCriticalHitResistance);
+}
+
+void UTaFeiAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData& OldHealthRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, HealthRegeneration, OldHealthRegeneration);
+}
+
+void UTaFeiAttributeSet::OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UTaFeiAttributeSet, ManaRegeneration, OldManaRegeneration);
 }

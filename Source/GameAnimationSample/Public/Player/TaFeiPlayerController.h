@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "TaFeiPlayerController.generated.h"
 
+class UTaFeiDamageTextComponent;
 class UTaFeiInputConfig;
 class UTaFeiAbilitySystemComponent;
 /**
@@ -55,4 +56,8 @@ private:
 	TObjectPtr<UTaFeiAbilitySystemComponent> TaFeiASC;
 
 	UTaFeiAbilitySystemComponent* GetASC();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UTaFeiDamageTextComponent> DamageTextComponentClass;
+
 };
