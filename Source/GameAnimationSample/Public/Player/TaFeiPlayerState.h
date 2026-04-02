@@ -11,7 +11,7 @@
  * 
  */
 
-class UCharacterClassData;
+class UCharacterClassInfo;
 class UTaFeiAbilitySystemComponent;
 class UTaFeiAttributeSet;
 UCLASS()
@@ -46,7 +46,7 @@ protected:
 
 	// 暴露给蓝图，用于在编辑器里把填好的 DataAsset 塞进来
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
-	TObjectPtr<UCharacterClassData> CharacterData;
+	TObjectPtr<UCharacterClassInfo> CharacterData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "TaFei|PlayerState")
 	int32 Level = 1; // 默认 1 级

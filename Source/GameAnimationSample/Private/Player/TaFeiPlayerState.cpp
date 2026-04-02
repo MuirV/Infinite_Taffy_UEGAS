@@ -3,7 +3,7 @@
 
 #include "Player/TaFeiPlayerState.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
-#include "AbilitySystem/Data/CharacterClassData.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 
 ATaFeiPlayerState::ATaFeiPlayerState()
