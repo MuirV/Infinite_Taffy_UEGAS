@@ -40,5 +40,5 @@ void ATaFeiHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySys
 
 	OverlayWidget->SetWidgetController(WidgetController);
 	WidgetController->BroadcastInitialValues();
-	Widget->AddToViewport(); //需要包含 UMG 模块 AddToViewport
+	Widget->AddToViewport(); // UE5.3及之前还不需要包含 UMG 模块 AddToViewport
 }
