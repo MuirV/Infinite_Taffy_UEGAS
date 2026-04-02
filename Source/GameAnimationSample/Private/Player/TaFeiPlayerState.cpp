@@ -1,6 +1,7 @@
 // Copyright Daisy
 
 
+// ReSharper disable CppDeprecatedEntity
 #include "Player/TaFeiPlayerState.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
@@ -10,7 +11,7 @@ ATaFeiPlayerState::ATaFeiPlayerState()
 {
 	// Aura 动作游戏标准：提高网络同步频率，防止动画和伤害脱节
 	// ReSharper disable once CppDeprecatedEntity
-	NetUpdateFrequency = 100.f;
+	
 
 	//实例化 ASC
 	AbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
@@ -20,6 +21,8 @@ ATaFeiPlayerState::ATaFeiPlayerState()
 
 	// 实例化 AttributeSet
 	AttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
+
+	NetUpdateFrequency = 100.f;
 }
 
 UAbilitySystemComponent* ATaFeiPlayerState::GetAbilitySystemComponent() const

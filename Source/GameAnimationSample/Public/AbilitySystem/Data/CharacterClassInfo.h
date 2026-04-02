@@ -74,6 +74,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
+	// 公共技能 (所有角色通用，比如 HitReact 受击反应技能)
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
+
 	// 辅助函数：根据枚举获取对应的结构体数据
 	UFUNCTION(BlueprintCallable, Category="TaFei|CharacterClassData")
 	FTaFeiCharacterClassDefaultInfo GetClassDefaultInfo(ETaFeiCharacterClass CharacterClass) const;
