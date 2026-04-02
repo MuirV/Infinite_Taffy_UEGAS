@@ -63,7 +63,7 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 void ATaFeiPlayerState::InitializeAttributes()
 {
 	// 如果没有配置 DataAsset，或者没有配置 PrimaryAttributes(GE)，则跳过
-	if (!AbilitySystemComponent || !CharacterData || !CharacterData->PrimaryAttributes)
+	if (!AbilitySystemComponent || !CharacterData )
 	{
 		return;
 	}
@@ -74,42 +74,70 @@ void ATaFeiPlayerState::InitializeAttributes()
 
 	// 【重构】：将原来的 1.f 改为 GetPlayerLevel()
 	float CurrentLevel = static_cast<float>(GetPlayerLevel());
-	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
-		CharacterData->PrimaryAttributes, CurrentLevel, ContextHandle);
 	
-	// 将 GE 应用给自己
-	if (SpecHandle.IsValid())
+	// 核心改动：先从字典里查出当前角色(Player)对应的专属数据包
+	FTaFeiCharacterClassDefaultInfo ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
+
+    // 初始化主属性 (使用查出来的数据包里的 PrimaryAttributes)
+	if (ClassInfo.PrimaryAttributes)
 	{
-		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		FGameplayEffectSpecHandle PrimarySpec = AbilitySystemComponent->MakeOutgoingSpec(ClassInfo.PrimaryAttributes, CurrentLevel, ContextHandle);
+		if (PrimarySpec.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*PrimarySpec.Data.Get());
+		}
+	}
+
+    // 初始化副属性 (使用公共的 SecondaryAttributes)
+	if (CharacterData->SecondaryAttributes)
+	{
+		FGameplayEffectSpecHandle SecondarySpec = AbilitySystemComponent->MakeOutgoingSpec(CharacterData->SecondaryAttributes, CurrentLevel, ContextHandle);
+		if (SecondarySpec.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SecondarySpec.Data.Get());
+		}
+	}
+
+    //  初始化核心生命法力 (使用公共的 VitalAttributes)
+	if (CharacterData->VitalAttributes)
+	{
+		FGameplayEffectSpecHandle VitalSpec = AbilitySystemComponent->MakeOutgoingSpec(CharacterData->VitalAttributes, CurrentLevel, ContextHandle);
+		if (VitalSpec.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*VitalSpec.Data.Get());
+		}
 	}
 }
 
 // 实现赋予技能逻辑
 void ATaFeiPlayerState::AddStartupAbilities()
 {
-	// 如果没有配置 DataAsset，跳过
-	if (!AbilitySystemComponent || !CharacterData)
-	{
-		return;
-	}
+    // 如果没有配置 DataAsset，跳过
+    if (!AbilitySystemComponent || !CharacterData)
+    {
+       return;
+    }
 
-	// 遍历我们在 DataAsset 里配置的所有初始技能
-	for (const FTaFeiAbilityInfo& AbilityInfo : CharacterData->StartupAbilities)
-	{
-		// 确保技能类不是空的
-		if (AbilityInfo.AbilityClass)
-		{
-			// 给 ASC 赋予这个技能
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, GetPlayerLevel());
+	// characterclassinfo新增enum后：从字典里查出当前角色(Player)对应的专属数据包
+	FTaFeiCharacterClassDefaultInfo ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
 
-			// ★ 核心操作：如果配置了输入标签，就把它注入到技能实例的动态标签中
-			if (AbilityInfo.InputTag.IsValid())
-			{
-				AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
-			}
+    // 遍历数据包里的初始技能
+    for (const FTaFeiAbilityInfo& AbilityInfo : ClassInfo.StartupAbilities)
+    {
+       // 确保技能类不是空的
+       if (AbilityInfo.AbilityClass)
+       {
+          // 给 ASC 赋予这个技能
+          FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, GetPlayerLevel());
 
-			// 正式把技能交给 ASC
-			AbilitySystemComponent->GiveAbility(AbilitySpec);
-		}
-	}
+          // 如果配置了输入标签，就把它注入到技能实例的动态标签中
+          if (AbilityInfo.InputTag.IsValid())
+          {
+             AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
+          }
+
+          // 正式把技能交给 ASC
+          AbilitySystemComponent->GiveAbility(AbilitySpec);
+       }
+    }
 }

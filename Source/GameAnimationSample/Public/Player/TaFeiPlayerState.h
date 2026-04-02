@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "TaFeiPlayerState.generated.h"
 
 /**
@@ -47,6 +48,10 @@ protected:
 	// 暴露给蓝图，用于在编辑器里把填好的 DataAsset 塞进来
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
 	TObjectPtr<UCharacterClassInfo> CharacterData;
+
+	// 标记这个 PlayerState 属于什么职业（玩家自然是 Player）
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
+	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Player;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "TaFei|PlayerState")
 	int32 Level = 1; // 默认 1 级
