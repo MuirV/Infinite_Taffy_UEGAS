@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h" // 必须包含这个才能用 FGameplayTag
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "TaFeiCombatInterface.generated.h"
 
 // This class does not need to be modified.
@@ -34,4 +35,7 @@ public:
 	// 获取战斗插槽的位置 (例如武器尖端、左手、右手，用来生成特效或进行伤害判定)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	ETaFeiCharacterClass GetCharacterClass();
 };

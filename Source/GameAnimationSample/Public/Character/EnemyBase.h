@@ -26,8 +26,13 @@ public:
 	// ~ITaFeiCombatInterface
 	virtual int32 GetPlayerLevel_Implementation() const override;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
+	virtual ETaFeiCharacterClass GetCharacterClass_Implementation() override;
 
 protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Mob;
+	
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
 
@@ -70,5 +75,10 @@ protected:
 private:
 	// 辅助函数：初始化 GAS
 	void InitializeGAS();
+
+	
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
+	
 };
 

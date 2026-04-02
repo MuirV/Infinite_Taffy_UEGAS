@@ -58,6 +58,11 @@ FVector AEnemyBase::GetCombatSocketLocation_Implementation(const FGameplayTag& M
 	return GetMesh()->GetSocketLocation(WeaponSocketName);
 }
 
+ETaFeiCharacterClass AEnemyBase::GetCharacterClass_Implementation()
+{
+	return ITaFeiCombatInterface::GetCharacterClass_Implementation();
+}
+
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
