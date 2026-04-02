@@ -96,7 +96,7 @@ void ATaFeiPlayerState::AddStartupAbilities()
 		// 确保技能类不是空的
 		if (AbilityInfo.AbilityClass)
 		{
-			// 给 ASC 赋予这个技能，1 代表技能等级是 1 级
+			// 给 ASC 赋予这个技能
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, GetPlayerLevel());
 
 			// ★ 核心操作：如果配置了输入标签，就把它注入到技能实例的动态标签中

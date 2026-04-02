@@ -18,4 +18,6 @@ public:
 	FAttributePointsChangedSignature AttributePointsChangedDelegate;
 	
 	// TODO: 等你迁移 Aura 的 AttributeInfo 数据资产后，可在这里扩展广播具体的属性值
+
+	
 };

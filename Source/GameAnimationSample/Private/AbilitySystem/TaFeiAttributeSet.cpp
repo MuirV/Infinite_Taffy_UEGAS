@@ -23,14 +23,17 @@ UTaFeiAttributeSet::UTaFeiAttributeSet()
 	InitDamageReduction(0.0f); 
 	InitIncomingDamage(0.0f);
 
-	// ★ UI 数据映射绑定
 	const FTaFeiGameplayTags& GameplayTags = FTaFeiGameplayTags::Get();
 	
-	// 注意：如果你在 TaFeiGameplayTags 中还没添加下面这些标签，请记得去添加！
-	TagsToAttributes.Add(GameplayTags.Attributes_Vital_Health, GetHealthAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Vital_UltimateEnergy, GetUltimateEnergyAttribute);
+	// ★ 修正：这里只放需要显示在“属性详情面板 (Attribute Menu)”上的属性
+	// 绝对不要放 Current Health 或 Current UltimateEnergy！
 	
-	// 你还可以映射 MaxHealth, Mana 等，根据你 UI 面板要显示什么来决定
+	// 如果你在 TaFeiGameplayTags 里有类似 Attributes_Secondary_MaxHealth 的标签，可以在这里映射：
+	// TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxHealth, GetMaxHealthAttribute);
+	// TagsToAttributes.Add(GameplayTags.Attributes_Secondary_MaxUltimateEnergy, GetMaxUltimateEnergyAttribute);
+	
+	// 注意：如果你现阶段还没给你的 MaxHealth, DamageMultiplier 等准备专门的 Tag 用于 UI 显示，
+	// 这部分可以先留空，等你需要做复杂的属性详情面板时再加进来。
 }
 
 void UTaFeiAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
