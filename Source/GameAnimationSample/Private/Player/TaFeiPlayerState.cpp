@@ -40,6 +40,9 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 		// Owner 是 PlayerState(this)，Avatar 是你的蓝图角色(AvatarPawn)
 		AbilitySystemComponent->InitAbilityActorInfo(this, AvatarPawn);
 
+		//通知我们自定义的 ASC 去绑定它自己的 UI 委托！
+		Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+		
 		// 锁上，确保这一段肉体只绑定一次
 		bGASInitialized = true;
 		

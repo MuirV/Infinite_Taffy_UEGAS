@@ -8,6 +8,24 @@ UTaFeiAbilitySystemComponent::UTaFeiAbilitySystemComponent()
 
 	// 后续如果需要绑定特殊的输入逻辑，可以在这里加，现在空着
 }
+
+void UTaFeiAbilitySystemComponent::AbilityActorInfoSet()
+{
+	// ★ 当有 GameplayEffect 应用到自己身上时，触发本类的 ClientEffectApplied 函数
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UTaFeiAbilitySystemComponent::ClientEffectApplied);
+}
+
+void UTaFeiAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
+{
+	FGameplayTagContainer TagContainer;
+	
+	// ★ 核心：把这个刚刚应用成功的 GE 里的所有 Asset Tags 提取出来
+	EffectSpec.GetAllAssetTags(TagContainer);
+	
+	// 把拿到的 Tag 广播出去！(OverlayWidgetController 此时就在乖乖监听这个)
+	EffectAssetTags.Broadcast(TagContainer);
+}
+
 void UTaFeiAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;

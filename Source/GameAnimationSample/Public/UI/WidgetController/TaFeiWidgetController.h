@@ -1,12 +1,18 @@
+// Copyright Daisy
+
 #pragma once
+
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "TaFeiWidgetController.generated.h"
 
 class UAbilitySystemComponent;
 class UAttributeSet;
+class ATaFeiPlayerController;
+class ATaFeiPlayerState;
+class UTaFeiAbilitySystemComponent;
+class UTaFeiAttributeSet;
 
-// UI 初始化参数结构体
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
 {
@@ -38,10 +44,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void BroadcastInitialValues();
-
 	virtual void BindCallbacksToDependencies();
 
 protected:
+	// 基础指针
 	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
 
@@ -53,4 +59,19 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
 	TObjectPtr<UAttributeSet> AttributeSet;
+
+	// === TaFei 专属缓存指针与 Getter ===
+	UPROPERTY()
+	TObjectPtr<ATaFeiPlayerController> TaFeiPlayerController;
+	UPROPERTY()
+	TObjectPtr<ATaFeiPlayerState> TaFeiPlayerState;
+	UPROPERTY()
+	TObjectPtr<UTaFeiAbilitySystemComponent> TaFeiAbilitySystemComponent;
+	UPROPERTY()
+	TObjectPtr<UTaFeiAttributeSet> TaFeiAttributeSet;
+
+	ATaFeiPlayerController* GetTaFeiPC();
+	ATaFeiPlayerState* GetTaFeiPS();
+	UTaFeiAbilitySystemComponent* GetTaFeiASC();
+	UTaFeiAttributeSet* GetTaFeiAS();
 };

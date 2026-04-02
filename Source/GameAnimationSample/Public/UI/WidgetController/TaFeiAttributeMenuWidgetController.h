@@ -1,8 +1,12 @@
 ﻿#pragma once
+
 #include "CoreMinimal.h"
 #include "UI/WidgetController/TaFeiWidgetController.h"
+#include "AbilitySystem/Data/AttributeInfo.h" // 你的数据资产结构体
 #include "TaFeiAttributeMenuWidgetController.generated.h"
 
+struct FGameplayAttribute;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FTaFeiAttributeInfo&, Info);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributePointsChangedSignature, int32, Points);
 
 UCLASS(BlueprintType, Blueprintable)
@@ -13,11 +17,19 @@ public:
 	virtual void BindCallbacksToDependencies() override;
 	virtual void BroadcastInitialValues() override;
 
+
+	// ★ 挂载属性详情的数据资产
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<UAttributeInfo> AttributeInfo;
+
+	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
+	FAttributeInfoSignature AttributeInfoDelegate;
 	// 监听剩余属性点
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FAttributePointsChangedSignature AttributePointsChangedDelegate;
 	
-	// TODO: 等你迁移 Aura 的 AttributeInfo 数据资产后，可在这里扩展广播具体的属性值
-
+	
+private:
+	void BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const;
 	
 };
