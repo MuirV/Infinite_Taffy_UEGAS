@@ -29,10 +29,18 @@ public:
 	
 	// 属性加点相关
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|PlayerInterface")
-	int32 GetAttributePoints(int32 Level) const;
+	int32 GetAttributePoints() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|PlayerInterface")
-	int32 GetSpellPoints(int32 Level) const;
+	int32 GetSpellPoints() const;
+
+	// 获取升级奖励的属性点
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|PlayerInterface")
+	int32 GetAttributePointsReward(int32 Level) const;
+
+	// 获取升级奖励的技能点
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|PlayerInterface")
+	int32 GetSpellPointsReward(int32 Level) const;
 
 	// 经验与等级相关 (可根据你的需求后续在 PlayerState 中实现)
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|PlayerInterface")

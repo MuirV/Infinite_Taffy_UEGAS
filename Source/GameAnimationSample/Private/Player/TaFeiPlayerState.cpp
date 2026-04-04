@@ -46,22 +46,36 @@ int32 ATaFeiPlayerState::FindLevelForXP_Implementation(int32 InXP) const
 	return 1;
 }
 
-int32 ATaFeiPlayerState::GetAttributePoints_Implementation(int32 InLevel) const
+int32 ATaFeiPlayerState::GetAttributePointsReward_Implementation(int32 InLevel) const
 {
+	// 安全检查：确保蓝图里配置了 LevelUpInfo，并且等级没有超出数组范围
 	if (LevelUpInfo && LevelUpInfo->LevelUpInformation.IsValidIndex(InLevel))
 	{
+		// 直接返回自己身上 LevelUpInfo 里的数据
 		return LevelUpInfo->LevelUpInformation[InLevel].AttributePointAward;
 	}
 	return 0;
 }
 
-int32 ATaFeiPlayerState::GetSpellPoints_Implementation(int32 InLevel) const
+int32 ATaFeiPlayerState::GetSpellPointsReward_Implementation(int32 InLevel) const
 {
+	// 安全检查：确保蓝图里配置了 LevelUpInfo，并且等级没有超出数组范围
 	if (LevelUpInfo && LevelUpInfo->LevelUpInformation.IsValidIndex(InLevel))
 	{
+		// 直接返回自己身上 LevelUpInfo 里的数据
 		return LevelUpInfo->LevelUpInformation[InLevel].SpellPointAward;
 	}
 	return 0;
+}
+
+int32 ATaFeiPlayerState::GetAttributePoints_Implementation() const
+{
+	return AttributePoints;
+}
+
+int32 ATaFeiPlayerState::GetSpellPoints_Implementation() const
+{
+	return SpellPoints;
 }
 
 void ATaFeiPlayerState::AddToXP_Implementation(int32 InXP)

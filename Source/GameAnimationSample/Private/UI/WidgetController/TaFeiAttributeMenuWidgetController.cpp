@@ -32,8 +32,18 @@ void UTaFeiAttributeMenuWidgetController::BindCallbacksToDependencies()
 
 void UTaFeiAttributeMenuWidgetController::BroadcastInitialValues()
 {
-	if (PlayerState->Implements<UTaFeiPlayerInterface>())
+	check(AttributeInfo); // 确保蓝图里配了 DataAsset
+	
+	// GetTaFeiAS() 是你写在基类里的辅助函数，用来安全获取 AttributeSet
+	for (auto& Pair : GetTaFeiAS()->TagsToAttributes)
 	{
+		BroadcastAttributeInfo(Pair.Key, Pair.Value());
+	}
+
+	// 广播当前的属性点
+	if (PlayerState && PlayerState->Implements<UTaFeiPlayerInterface>())
+	{
+		// 现在的 Execute_GetAttributePoints 只需要传入目标对象 (PlayerState) 即可，完美契合 1 个参数！
 		int32 Points = ITaFeiPlayerInterface::Execute_GetAttributePoints(PlayerState);
 		AttributePointsChangedDelegate.Broadcast(Points);
 	}

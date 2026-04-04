@@ -11,6 +11,7 @@
 #include "TaFeiGameplayTags.h" 
 #include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
 #include "Interaction/TaFeiCombatInterface.h"
+#include "Interaction/TaFeiPlayerInterface.h"
 
 
 #include "Player/TaFeiPlayerController.h"
@@ -197,7 +198,40 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 				}
 			}
 		
-			
+			if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+			{
+				const float LocalIncomingXP = GetIncomingXP();
+				SetIncomingXP(0.f);
+    
+				// 检查肉体是否同时实现了 Player 接口和 Combat 接口 (C++和蓝图实现都会返回 true!)
+				if (Props.SourceCharacter->Implements<UTaFeiPlayerInterface>() && Props.SourceCharacter->Implements<UTaFeiCombatInterface>())
+				{
+					// 这些 Execute_ 函数会自动调用你 BP_SandboxCharacter 里的蓝图节点！
+					const int32 CurrentLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
+					const int32 CurrentXP = ITaFeiPlayerInterface::Execute_GetXP(Props.SourceCharacter);
+
+					const int32 NewLevel = ITaFeiPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
+					const int32 NumLevelUps = NewLevel - CurrentLevel;
+					if (NumLevelUps > 0)
+					{
+						// ⚠️ 注意：这里务必确保你的接口头文件里名字改成了 Reward，否则会编译报错
+						const int32 AttributePointsReward = ITaFeiPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
+						const int32 SpellPointsReward = ITaFeiPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
+
+						ITaFeiPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumLevelUps);
+						ITaFeiPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
+						ITaFeiPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
+          
+						// 升级回满状态
+						SetHealth(GetMaxHealth());
+						SetMana(GetMaxMana());
+
+						ITaFeiPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
+					}
+       
+					ITaFeiPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
+				}
+			}
 			
 		}
 	}
