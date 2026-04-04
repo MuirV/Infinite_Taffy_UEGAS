@@ -34,10 +34,16 @@ public:
 	FGameplayTag Buff_DamageAmplification;    // 伤害增幅
 	FGameplayTag Buff_DamageReduction;        // 90%减伤
 
+	FGameplayTag Attributes_Meta_IncomingXP;
+
 	// ---------------- 属性标签 (Attributes) ----------------
 	FGameplayTag Attributes_Vital_Health;
 	FGameplayTag Attributes_Vital_UltimateEnergy; // 大招能量
 
+	// 运动状态 Tags
+	FGameplayTag State_Movement_Sprinting;
+	FGameplayTag State_Movement_Airborne;
+	
 	// Event Tags  考虑到用Section做动画
 	FGameplayTag Event_Melee_Hit;
 	FGameplayTag Event_Combo_WindowOpen;

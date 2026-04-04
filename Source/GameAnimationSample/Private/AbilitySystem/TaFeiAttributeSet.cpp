@@ -11,7 +11,7 @@
 #include "TaFeiGameplayTags.h" 
 #include "Interaction/TaFeiCombatInterface.h"
 
-#include "AbilitySystem/TaFeiAbilitySystemGlobals.h" // 需要引入以防强转出错
+
 #include "Player/TaFeiPlayerController.h"
 
 UTaFeiAttributeSet::UTaFeiAttributeSet()

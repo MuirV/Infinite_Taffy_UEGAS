@@ -44,11 +44,26 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Buff_DamageReduction = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Buff.DamageReduction"), FString("90% Damage Reduction Buff"));
 
+	/*
+	* Meta Attributes
+	*/
+	GameplayTags.Attributes_Meta_IncomingXP = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Meta.IncomingXP"),
+		FString("Meta Incoming XP")
+	);
+
 	
 	/* Attribute Tags */
 	GameplayTags.Attributes_Vital_UltimateEnergy = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Vital.UltimateEnergy"), FString("Amount of Ultimate Energy"));
 
+	/* State Tags */
+	GameplayTags.State_Movement_Sprinting = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.Movement.Sprinting"), FString("Character is currently sprinting"));
+
+	GameplayTags.State_Movement_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.Movement.Airborne"), FString("Character is in the air"));
+	
 
 	/* Event Tags ▼ */
 	GameplayTags.Event_Melee_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(
