@@ -9,6 +9,7 @@
 // 引入你的标签和接口，请确保包含路径正确
 #include "TaFeiAbilityTypes.h"
 #include "TaFeiGameplayTags.h" 
+#include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
 #include "Interaction/TaFeiCombatInterface.h"
 
 
@@ -195,8 +196,45 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 					PC->ClientShowDamageNumber(LocalIncomingDamage, Props.TargetCharacter, bBlocked, bCritical);
 				}
 			}
+		
+			
 			
 		}
+	}
+}
+
+
+void UTaFeiAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bBlockedHit,
+	bool bCriticalHit) const
+{
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		if (ATaFeiPlayerController* PC = Cast<ATaFeiPlayerController>(Props.SourceCharacter->Controller))
+		{
+			PC->ClientShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+			return;
+		}
+		if (ATaFeiPlayerController* PC = Cast<ATaFeiPlayerController>(Props.TargetCharacter->Controller))
+		{
+			PC->ClientShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);					
+		}		
+	}
+}
+
+void UTaFeiAttributeSet::SendXPEvent(const FEffectProperties& Props)
+{
+	if (Props.TargetCharacter->Implements<UTaFeiCombatInterface>())
+	{
+		const int32 TargetLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(Props.TargetCharacter);
+		const ETaFeiCharacterClass TargetClass = ITaFeiCombatInterface::Execute_GetCharacterClass(Props.TargetCharacter);
+		const int32 XPReward = UTaFeiAbilitySystemLibrary::GetXPRewardForClassAndLevel(Props.TargetCharacter, TargetClass, TargetLevel);
+
+		const FTaFeiGameplayTags& GameplayTags = FTaFeiGameplayTags::Get();
+		FGameplayEventData Payload;
+		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP;
+		Payload.EventMagnitude = XPReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceCharacter,
+			GameplayTags.Attributes_Meta_IncomingXP, Payload);
 	}
 }
 

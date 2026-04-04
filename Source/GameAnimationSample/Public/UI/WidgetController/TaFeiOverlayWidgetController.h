@@ -71,7 +71,7 @@ public:
 
 	// === 经验与等级委托 (预留拓展位) ===
 	UPROPERTY(BlueprintAssignable, Category="GAS|XP")
-	FOnAttributeChangedSignature OnXPPercentChangedDelegate; // 进度条百分比
+	FOnAttributeChangedSignature OnXPPercentageChangedDelegate; // 进度条百分比
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
 	FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;

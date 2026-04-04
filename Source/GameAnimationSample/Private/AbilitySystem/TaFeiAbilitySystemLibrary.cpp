@@ -2,6 +2,7 @@
 
 #include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
 
+#include "TaFeiAbilityTypes.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/TaFeiPlayerState.h"
@@ -44,6 +45,129 @@ UTaFeiAttributeMenuWidgetController* UTaFeiAbilitySystemLibrary::GetAttributeMen
 	}
 	return nullptr;
 }
+
+
+void UTaFeiAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, ETaFeiCharacterClass CharacterClass, float Level, UAbilitySystemComponent* ASC)
+{
+	AActor* AvatarActor = ASC->GetAvatarActor();
+	
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	FTaFeiCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+
+	FGameplayEffectContextHandle PrimaryAttributesContextHandle = ASC->MakeEffectContext();
+	PrimaryAttributesContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle = ASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes, Level, PrimaryAttributesContextHandle);
+	ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributesSpecHandle.Data.Get());
+
+	FGameplayEffectContextHandle SecondaryAttributesContextHandle = ASC->MakeEffectContext();
+	SecondaryAttributesContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle SecondaryAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->SecondaryAttributes, Level, SecondaryAttributesContextHandle);
+	ASC->ApplyGameplayEffectSpecToSelf(*SecondaryAttributesSpecHandle.Data.Get());
+
+	FGameplayEffectContextHandle VitalAttributesContextHandle = ASC->MakeEffectContext();
+	VitalAttributesContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle VitalAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, Level, VitalAttributesContextHandle);
+	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data.Get());
+	
+	
+}
+void UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ETaFeiCharacterClass CharacterClass)
+{
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return;
+
+	const FTaFeiCharacterClassDefaultInfo& DefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+    
+	// --- 错误写法 (Aura 原版): ---
+	// for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultInfo.StartupAbilities) 
+    
+	// --- 正确写法 (TaFei 适配版): --- 因为我们将InputTag与GameplayAbility结合了，TaFeiAbilityInfo
+	for (const FTaFeiAbilityInfo& AbilityInfo : DefaultInfo.StartupAbilities)
+	{
+		if (AbilityInfo.AbilityClass)
+		{
+			// 使用 AbilityInfo.AbilityClass 成员
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, 1);
+            
+			// 如果你有输入标签，也可以在这里注入
+			if (AbilityInfo.InputTag.IsValid())
+			{
+				AbilitySpec.DynamicAbilityTags.AddTag(AbilityInfo.InputTag);
+			}
+            
+			ASC->GiveAbility(AbilitySpec);
+		}
+	}
+}
+
+
+int32 UTaFeiAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* WorldContextObject,
+	ETaFeiCharacterClass CharacterClass, int32 CharacterLevel)
+{
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return 0;
+
+	const FTaFeiCharacterClassDefaultInfo Info = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	const float XPReward = Info.XPReward.GetValueAtLevel(CharacterLevel);
+
+	return static_cast<int32>(XPReward);
+}
+
+
+UCharacterClassInfo* UTaFeiAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	{
+		// 2. 获取你的 TaFeiPlayerState
+		if (ATaFeiPlayerState* PS = PC->GetPlayerState<ATaFeiPlayerState>())
+		{
+			// 3. 返回你在 PlayerState 里填写的 CharacterData
+			return PS->CharacterData;
+		}
+	}
+    
+	return nullptr;
+	
+}
+
+bool UTaFeiAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+			return AuraEffectContext->IsBlockedHit();
+	}
+	
+	return false;
+}
+
+bool UTaFeiAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->IsCriticalHit();
+	}
+	
+	return false;
+}
+
+void UTaFeiAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
+{
+	if (FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AuraEffectContext->SetIsBlockedHit(bInIsBlockedHit);	
+	}
+}
+
+void UTaFeiAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle,
+	bool bInIsCriticalHit)
+{
+	if (FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AuraEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
+}
+
+
 
 // 阵营判断：依赖 GameplayTags 甚至普通的 ActorTags (这里使用标准的 ActorTags 示例)
 bool UTaFeiAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondActor)

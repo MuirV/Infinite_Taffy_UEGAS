@@ -3,6 +3,7 @@
 #include "UI/WidgetController/TaFeiOverlayWidgetController.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
+#include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Player/TaFeiPlayerState.h"
 
 void UTaFeiOverlayWidgetController::BroadcastInitialValues()
@@ -86,4 +87,33 @@ void UTaFeiOverlayWidgetController::OnXPChanged(int32 NewXP)
 	 * 算出百分比后广播：
 	 * OnXPPercentChangedDelegate.Broadcast(XPBarPercent);
 	 */
+	ATaFeiPlayerState* TaFeiPS = CastChecked<ATaFeiPlayerState>(PlayerState);
+	const ULevelUpInfo* LevelUpInfo = TaFeiPS->LevelUpInfo;
+
+	checkf(LevelUpInfo, TEXT("Unable to find LevelUpInfo, Please fill out TaFeiPlayerState Blueprint"));
+
+	const int32 Level = LevelUpInfo->FindLevelForXP(NewXP);
+	const int32 MaxLevel = LevelUpInfo->LevelUpInformation.Num() - 1;
+
+	if (Level <= MaxLevel && Level > 0)
+	{
+		// 本级升级所需总经验
+		const int32 LevelUpRequirement = LevelUpInfo->LevelUpInformation[Level].LevelUpRequirement;
+		// 上一级升级所需总经验
+		const int32 PreviousLevelUpRequirement = LevelUpInfo->LevelUpInformation[Level - 1].LevelUpRequirement;
+
+		// 本级总共需要打多少经验
+		const int32 DeltaLevelRequirement = LevelUpRequirement - PreviousLevelUpRequirement;
+		// 当前在本级已经打到了多少经验
+		const int32 XPForThisLevel = NewXP - PreviousLevelUpRequirement;
+	
+		// 计算百分比
+		float XPBarPercent = 0.f;
+		if (DeltaLevelRequirement > 0)
+		{
+			XPBarPercent = static_cast<float>(XPForThisLevel) / static_cast<float>(DeltaLevelRequirement);
+		}
+
+		OnXPPercentageChangedDelegate.Broadcast(XPBarPercent);
+	}
 }

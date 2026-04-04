@@ -6,6 +6,7 @@
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 ATaFeiPlayerState::ATaFeiPlayerState()
 {
@@ -24,6 +25,100 @@ ATaFeiPlayerState::ATaFeiPlayerState()
 
 	SetNetUpdateFrequency(100.f);
 }
+
+void ATaFeiPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 在 GetLifetimeReplicatedProps 注册同步
+	DOREPLIFETIME(ATaFeiPlayerState, Level);
+	DOREPLIFETIME(ATaFeiPlayerState, XP);
+	DOREPLIFETIME(ATaFeiPlayerState, AttributePoints);
+	DOREPLIFETIME(ATaFeiPlayerState, SpellPoints);
+}
+
+// 接口实现
+int32 ATaFeiPlayerState::GetXP_Implementation() const { return XP; }
+
+int32 ATaFeiPlayerState::FindLevelForXP_Implementation(int32 InXP) const
+{
+	if (LevelUpInfo) return LevelUpInfo->FindLevelForXP(InXP);
+	return 1;
+}
+
+int32 ATaFeiPlayerState::GetAttributePoints_Implementation(int32 InLevel) const
+{
+	if (LevelUpInfo && LevelUpInfo->LevelUpInformation.IsValidIndex(InLevel))
+	{
+		return LevelUpInfo->LevelUpInformation[InLevel].AttributePointAward;
+	}
+	return 0;
+}
+
+int32 ATaFeiPlayerState::GetSpellPoints_Implementation(int32 InLevel) const
+{
+	if (LevelUpInfo && LevelUpInfo->LevelUpInformation.IsValidIndex(InLevel))
+	{
+		return LevelUpInfo->LevelUpInformation[InLevel].SpellPointAward;
+	}
+	return 0;
+}
+
+void ATaFeiPlayerState::AddToXP_Implementation(int32 InXP)
+{
+	XP += InXP;
+	OnXPChangedDelegate.Broadcast(XP);
+}
+
+void ATaFeiPlayerState::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
+{
+	Level += InPlayerLevel;
+	OnLevelChangedDelegate.Broadcast(Level);
+}
+
+void ATaFeiPlayerState::AddToAttributePoints_Implementation(int32 InAttributePoints)
+{
+	AttributePoints += InAttributePoints;
+	OnAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void ATaFeiPlayerState::AddToSpellPoints_Implementation(int32 InSpellPoints)
+{
+	SpellPoints += InSpellPoints;
+	OnSpellPointsChangedDelegate.Broadcast(SpellPoints);
+}
+
+void ATaFeiPlayerState::LevelUp_Implementation()
+{
+	// 可在这里触发升级特效，交给蓝图覆写更佳
+}
+
+void ATaFeiPlayerState::SetXP(int32 InXP)
+{
+	XP = InXP;
+	OnXPChangedDelegate.Broadcast(InXP);
+}
+
+void ATaFeiPlayerState::SetToLevel(int32 InLevel)
+{
+	Level = InLevel;
+	OnLevelChangedDelegate.Broadcast(InLevel);
+}
+
+// OnRep 实现
+void ATaFeiPlayerState::OnRep_Level(int32 OldLevel) { OnLevelChangedDelegate.Broadcast(Level); }
+
+void ATaFeiPlayerState::OnRep_AttributePoints(int32 OldAttributePoints)
+{
+	OnAttributePointsChangedDelegate.Broadcast(AttributePoints);
+}
+
+void ATaFeiPlayerState::OnRep_SpellPoints(int32 OldLevel)
+{
+	OnSpellPointsChangedDelegate.Broadcast(SpellPoints);
+}
+
+void ATaFeiPlayerState::OnRep_XP(int32 OldXP) { OnXPChangedDelegate.Broadcast(XP); }
 
 UAbilitySystemComponent* ATaFeiPlayerState::GetAbilitySystemComponent() const
 {
