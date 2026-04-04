@@ -5,7 +5,7 @@
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 
-// Sets default values
+// 已弃用，蓝图层面使用GASP BP_SandboxCharacter作为父类，采用PlayerState传递ASC，AS等
 ATaFeiCharacterBase::ATaFeiCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;

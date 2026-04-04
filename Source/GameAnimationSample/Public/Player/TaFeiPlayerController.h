@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
 #include "TaFeiPlayerController.generated.h"
 
@@ -21,6 +22,10 @@ class GAMEANIMATIONSAMPLE_API ATaFeiPlayerController : public APlayerController
 public:
 	ATaFeiPlayerController();
 
+	// 客户端 RPC：只在发起攻击的玩家本地机器上显示伤害飘字
+	UFUNCTION(Client, Reliable)
+	void ClientShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
+	
 protected:
 	// 服务器端：附身完成时调用
 	virtual void OnPossess(APawn* InPawn) override;
@@ -57,7 +62,8 @@ private:
 
 	UTaFeiAbilitySystemComponent* GetASC();
 
-	UPROPERTY(EditDefaultsOnly)
+	// 在 BP_TaFeiPlayerController 蓝图中配置你的 Widget Component 类
+	UPROPERTY(EditDefaultsOnly, Category="TaFei|DamageText")
 	TSubclassOf<UTaFeiDamageTextComponent> DamageTextComponentClass;
 
 };

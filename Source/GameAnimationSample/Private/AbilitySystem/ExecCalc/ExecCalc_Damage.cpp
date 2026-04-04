@@ -3,7 +3,11 @@
 
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
+
+#include "Interaction/TaFeiCombatInterface.h"
+
 #include "TaFeiGameplayTags.h"
+
 //  定义一个用于捕获属性的结构体
 struct FTaFeiDamageStatics
 {
@@ -42,6 +46,27 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluationParameters.SourceTags = Spec.CapturedSourceTags.GetAggregatedTags();
 	EvaluationParameters.TargetTags = Spec.CapturedTargetTags.GetAggregatedTags();
 
+	// =========================================================================
+	UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
+	UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
+
+	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
+	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
+
+	int32 SourcePlayerLevel = 1;
+	if (SourceAvatar && SourceAvatar->Implements<UTaFeiCombatInterface>())
+	{
+		SourcePlayerLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(SourceAvatar);
+	}
+
+	int32 TargetPlayerLevel = 1;
+	if (TargetAvatar && TargetAvatar->Implements<UTaFeiCombatInterface>())
+	{
+		TargetPlayerLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(TargetAvatar);
+	}
+	// =========================================================================
+	// 新增部分结束 (为后续护甲CurveTable、等级压制等复杂公式做好了准备)
+	
 	// ----------获取基础伤害 ----------
 	// 从 SetByCaller 中获取我们在 GA 里打包好的物理伤害数值
 	float BaseDamage = Spec.GetSetByCallerMagnitude(FTaFeiGameplayTags::Get().Damage_Physical, false, 0.f);

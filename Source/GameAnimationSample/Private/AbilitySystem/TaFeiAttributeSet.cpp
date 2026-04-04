@@ -7,8 +7,12 @@
 #include "Net/UnrealNetwork.h"
 
 // 引入你的标签和接口，请确保包含路径正确
+#include "TaFeiAbilityTypes.h"
 #include "TaFeiGameplayTags.h" 
 #include "Interaction/TaFeiCombatInterface.h"
+
+#include "AbilitySystem/TaFeiAbilitySystemGlobals.h" // 需要引入以防强转出错
+#include "Player/TaFeiPlayerController.h"
 
 UTaFeiAttributeSet::UTaFeiAttributeSet()
 {
@@ -172,8 +176,26 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 				// 没死则播放受击动画 (如果需要的话，后续可在这里加发送 HitReact Event)
 			}
 			
-			// 以后你如果做飘字功能 (Damage Text)，可以在这里调用
-			// ShowFloatingText(Props, LocalIncomingDamage, ...);
+			// 只有发起攻击的是玩家，我们才让他的屏幕上飘字
+			if (Props.SourceController)
+			{
+				if (ATaFeiPlayerController* PC = Cast<ATaFeiPlayerController>(Props.SourceController))
+				{
+					bool bBlocked = false;
+					bool bCritical = false;
+
+					// 提取我们自定义的 TaFei Effect Context
+					if (FTaFeiGameplayEffectContext* TaFeiContext = static_cast<FTaFeiGameplayEffectContext*>(Props.EffectContextHandle.Get()))
+					{
+						bBlocked = TaFeiContext->IsBlockedHit();
+						bCritical = TaFeiContext->IsCriticalHit();
+					}
+
+					// 调用 RPC 显示飘字
+					PC->ClientShowDamageNumber(LocalIncomingDamage, Props.TargetCharacter, bBlocked, bCritical);
+				}
+			}
+			
 		}
 	}
 }
