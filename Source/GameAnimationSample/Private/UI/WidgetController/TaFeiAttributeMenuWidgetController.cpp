@@ -1,4 +1,6 @@
 ﻿#include "UI/WidgetController/TaFeiAttributeMenuWidgetController.h"
+
+#include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "GameFramework/PlayerState.h"
 #include "Interaction/TaFeiPlayerInterface.h"
@@ -47,6 +49,15 @@ void UTaFeiAttributeMenuWidgetController::BroadcastInitialValues()
 		int32 Points = ITaFeiPlayerInterface::Execute_GetAttributePoints(PlayerState);
 		AttributePointsChangedDelegate.Broadcast(Points);
 	}
+}
+
+void UTaFeiAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	// 获取你自定义的 ASC (假设你的基类有 GetTaFeiASC() 辅助函数，或者像 Aura 那样 Cast)
+	UTaFeiAbilitySystemComponent* TaFeiASC = CastChecked<UTaFeiAbilitySystemComponent>(AbilitySystemComponent);
+    
+	// 调用 ASC 里的升级属性 RPC 或具体逻辑
+	TaFeiASC->UpgradeAttribute(AttributeTag);
 }
 
 void UTaFeiAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const

@@ -3,6 +3,9 @@
 
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Interaction/TaFeiPlayerInterface.h"
+
 UTaFeiAbilitySystemComponent::UTaFeiAbilitySystemComponent()
 {
 
@@ -25,6 +28,34 @@ void UTaFeiAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySy
 	// 把拿到的 Tag 广播出去！(OverlayWidgetController 此时就在乖乖监听这个)
 	EffectAssetTags.Broadcast(TagContainer);
 }
+
+void UTaFeiAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	if (GetAvatarActor()->Implements<UTaFeiPlayerInterface>())
+	{
+		if (ITaFeiPlayerInterface::Execute_GetAttributePoints(GetAvatarActor()) > 0)
+		{
+			ServerUpdateAttribute(AttributeTag);
+		}
+	}
+}
+
+
+void UTaFeiAbilitySystemComponent::ServerUpdateAttribute_Implementation(const FGameplayTag& AttributeTag)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = 1.f;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag, Payload);
+
+	if (GetAvatarActor()->Implements<UTaFeiPlayerInterface>())
+	{
+		ITaFeiPlayerInterface::Execute_AddToAttributePoints(GetAvatarActor(), -1);
+	}
+	
+}
+
 
 void UTaFeiAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {

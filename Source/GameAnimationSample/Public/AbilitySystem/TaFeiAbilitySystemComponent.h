@@ -22,6 +22,12 @@ public:
 	void AbilityActorInfoSet();
 	
 	FEffectAssetTags EffectAssetTags;
+
+	void UpgradeAttribute(const FGameplayTag& AttributeTag);
+
+	UFUNCTION(Server, Reliable)
+	void ServerUpdateAttribute(const FGameplayTag& AttributeTag);
+	
 	// 自定义的 Tag 输入处理函数
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);

@@ -9,6 +9,7 @@
 #include "TaFeiOverlayWidgetController.generated.h"
 
 class UTaFeiUserWidget;
+struct FGAAbilityInfo;
 
 //  直接在这里定义弹窗消息的数据表结构 
 USTRUCT(BlueprintType)

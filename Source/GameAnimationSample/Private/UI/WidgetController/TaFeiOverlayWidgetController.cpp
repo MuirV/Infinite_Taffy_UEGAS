@@ -44,14 +44,14 @@ void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 	);
 
 	// 绑定经验与等级监听 (需要在 TaFeiPlayerState 中有对应的委托)
-	/* GetTaFeiPS()->OnXPChangedDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnXPChanged);
+	 GetTaFeiPS()->OnXPChangedDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnXPChanged);
 	GetTaFeiPS()->OnLevelChangedDelegate.AddLambda(
 		[this](int32 NewLevel)
 		{
 			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);		
 		}
 	);
-	*/
+	
 
 	// 绑定 Gameplay Effect 带来的屏幕消息 (拾取物品、提示等)
 	if (GetTaFeiASC())

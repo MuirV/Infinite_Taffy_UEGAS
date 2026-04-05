@@ -41,3 +41,4 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UTaFeiAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
 };
+

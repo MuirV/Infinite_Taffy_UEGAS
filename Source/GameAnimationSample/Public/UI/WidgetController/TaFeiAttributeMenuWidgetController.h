@@ -27,7 +27,9 @@ public:
 	// 监听剩余属性点
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FAttributePointsChangedSignature AttributePointsChangedDelegate;
-	
+
+	UFUNCTION(BlueprintCallable)
+	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 	
 private:
 	void BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const;
