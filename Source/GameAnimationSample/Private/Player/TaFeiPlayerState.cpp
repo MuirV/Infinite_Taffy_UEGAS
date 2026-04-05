@@ -7,6 +7,8 @@
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/TaFeiPlayerController.h"
+#include "UI/HUD/TaFeiHUD.h"
 
 ATaFeiPlayerState::ATaFeiPlayerState()
 {
@@ -167,7 +169,16 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("GAS 灵魂注入成功！Owner: %s, Avatar: %s"), *GetName(), *AvatarPawn->GetName());
-
+	//Aura是在Character里面写的HUD注册
+	// 只有本地控制的玩家（Local Controller）才有 HUD，服务器里的怪物或其他玩家不需要建 UI
+	if (ATaFeiPlayerController* TaFeiPC = Cast<ATaFeiPlayerController>(AvatarPawn->GetController()))
+	{
+		if (ATaFeiHUD* TaFeiHUD = Cast<ATaFeiHUD>(TaFeiPC->GetHUD()))
+		{
+			// 将四大金刚（PC, PS, ASC, AS）传给 HUD，正式生成 UI
+			TaFeiHUD->InitOverlay(TaFeiPC, this, AbilitySystemComponent, AttributeSet);
+		}
+	}
 	
 }
 
