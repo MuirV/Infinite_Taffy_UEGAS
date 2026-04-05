@@ -3,6 +3,7 @@
 #include "Actor/TaFeiEffectActor.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "GameFramework/PlayerState.h"
 
 // Sets default values
 ATaFeiEffectActor::ATaFeiEffectActor()
@@ -24,6 +25,18 @@ void ATaFeiEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGa
     
 	// 尝试获取目标的 ASC (使用 BlueprintLibrary 方式可以兼容任何带 ASC 的 Actor)
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	if (TargetASC == nullptr) //PlayerState兜底检测
+	{
+		if (APawn* TargetPawn = Cast<APawn>(TargetActor))
+		{
+			if (APlayerState* PS = TargetPawn->GetPlayerState())
+			{
+				TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
+			}
+		}
+	}
+    
+	// 如果兜底找完还是没找到，才退出
 	if (TargetASC == nullptr) return;
     
 	check(GameplayEffectClass);
@@ -96,6 +109,16 @@ void ATaFeiEffectActor::OnEndOverlap(AActor* TargetActor)
 	if (InfiniteEffectRemovalPolicy == ETaFeiEffectRemovalPolicy::RemoveOnEndOverlap)
 	{
 		UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+		if (!IsValid(TargetASC)) //PlayerState兜底检查
+		{
+			if (APawn* TargetPawn = Cast<APawn>(TargetActor))
+			{
+				if (APlayerState* PS = TargetPawn->GetPlayerState())
+				{
+					TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
+				}
+			}
+		}
 		if (!IsValid(TargetASC)) return;
 
 		TArray<FActiveGameplayEffectHandle> HandlesToRemove;
