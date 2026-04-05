@@ -4,6 +4,7 @@
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "GameFramework/PlayerState.h"
 #include "Interaction/TaFeiPlayerInterface.h"
+#include "Player/TaFeiPlayerState.h"
 #include "UI/HUD/TaFeiHUD.h"
 
 void UTaFeiAttributeMenuWidgetController::BindCallbacksToDependencies()
@@ -21,15 +22,14 @@ void UTaFeiAttributeMenuWidgetController::BindCallbacksToDependencies()
 		);
 	}
 
-	// 2. 绑定属性点变化 (通过肉体 Pawn 调用接口，完美解耦)
-	if (APawn* AvatarPawn = PlayerController->GetPawn())
-	{
-		if (AvatarPawn->Implements<UTaFeiPlayerInterface>())
+	GetTaFeiPS()->OnAttributePointsChangedDelegate.AddLambda(
+		[this](int32 Points)
 		{
-			// TODO: 如果你在 PlayerState 里加了 OnAttributePointsChangedDelegate，可以在这里绑定
-			// GetTaFeiPS()->OnAttributePointsChangedDelegate.AddLambda(...)
+			AttributePointsChangedDelegate.Broadcast(Points);		
 		}
-	}
+	);
+
+	
 }
 
 void UTaFeiAttributeMenuWidgetController::BroadcastInitialValues()

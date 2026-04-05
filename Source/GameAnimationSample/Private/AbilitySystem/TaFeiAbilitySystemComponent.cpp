@@ -56,6 +56,62 @@ void UTaFeiAbilitySystemComponent::ServerUpdateAttribute_Implementation(const FG
 	
 }
 
+// 在 TaFeiAbilitySystemComponent.cpp 末尾补充以下实现：
+
+void UTaFeiAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+	// 锁定技能列表，防止在遍历时被修改引发崩溃
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(AbilitySpec))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to execute delegate in %hs"), __FUNCTION__);
+		}
+	}
+}
+
+FGameplayTag UTaFeiAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability)
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			// 匹配你项目里的 Abilities 父级标签 (例如 Abilities.Attack.ComboLMB)
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();	
+}
+
+FGameplayTag UTaFeiAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	for (FGameplayTag Tag : AbilitySpec.GetDynamicSpecSourceTags())
+	{
+		// 匹配你项目里的 InputTag 父级标签 (例如 InputTag.LMB)
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+		{
+			return Tag;
+		}
+	}
+	return FGameplayTag();
+}
+
+void UTaFeiAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+
+	// 客户端接收到技能列表复制时，通知 UI 更新
+	if (!bStartupAbilitiesGiven)
+	{
+		bStartupAbilitiesGiven = true;
+		AbilitiesGivenDelegate.Broadcast(this);
+	}
+}
+
 
 void UTaFeiAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {

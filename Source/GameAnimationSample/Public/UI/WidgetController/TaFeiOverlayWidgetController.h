@@ -8,6 +8,7 @@
 #include "GameplayTagContainer.h"
 #include "TaFeiOverlayWidgetController.generated.h"
 
+class UAbilityInfo;
 class UTaFeiUserWidget;
 struct FGAAbilityInfo;
 
@@ -32,8 +33,9 @@ struct FTaFeiUIWidgetRow : public FTableRowBase
 
 // --- 委托声明 ---
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);//Aura放在WidgetController里面
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FTaFeiUIWidgetRow, Row);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FGAAbilityInfo&, Info);
 
 /**
  * 主界面 UI 控制器
@@ -70,6 +72,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
+
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
+	FAbilityInfoSignature AbilityInfoDelegate;
+	
 	// === 经验与等级委托 (预留拓展位) ===
 	UPROPERTY(BlueprintAssignable, Category="GAS|XP")
 	FOnAttributeChangedSignature OnXPPercentageChangedDelegate; // 进度条百分比
@@ -82,10 +88,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<UAbilityInfo> AbilityInfo;
+	
 	// 辅助函数：根据 Tag 从 DataTable 提取消息数据
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 
+	void OnInitializeStartupAbilities(UTaFeiAbilitySystemComponent* AuraAbilitySystemComponent);
 	// 等你以后加入了 LevelUpInfo 数据资产，可以在这里处理 XP 百分比转换
 	void OnXPChanged(int32 NewXP);
 };

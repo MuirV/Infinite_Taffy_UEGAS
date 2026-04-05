@@ -252,4 +252,13 @@ void ATaFeiPlayerState::AddStartupAbilities()
           AbilitySystemComponent->GiveAbility(AbilitySpec);
        }
     }
+
+	// --- 在 for 循环结束后加上这两行 (需要将 ASC 强转为 TaFeiASC 才能访问) ---
+	//TODO:有待商催
+	if (UTaFeiAbilitySystemComponent* TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		TaFeiASC->bStartupAbilitiesGiven = true;
+		TaFeiASC->AbilitiesGivenDelegate.Broadcast(TaFeiASC);
+	}
+	
 }

@@ -3,6 +3,7 @@
 #include "UI/WidgetController/TaFeiOverlayWidgetController.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Player/TaFeiPlayerState.h"
 
@@ -21,7 +22,16 @@ void UTaFeiOverlayWidgetController::BroadcastInitialValues()
 
 void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 {
-	// 1. 绑定核心生命、法力、大招属性的变化监听
+	// 绑定经验与等级监听 (需要在 TaFeiPlayerState 中有对应的委托)
+	GetTaFeiPS()->OnXPChangedDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnXPChanged);
+ 	GetTaFeiPS()->OnLevelChangedDelegate.AddLambda(
+ 		[this](int32 NewLevel)
+ 		{
+ 			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);		
+ 		}
+ 	);
+ 	
+	// 绑定核心生命、法力、大招属性的变化监听
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetTaFeiAS()->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data) { OnHealthChanged.Broadcast(Data.NewValue); }
 	);
@@ -43,39 +53,66 @@ void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 		[this](const FOnAttributeChangeData& Data) { OnMaxUltimateEnergyChanged.Broadcast(Data.NewValue); }
 	);
 
-	// 绑定经验与等级监听 (需要在 TaFeiPlayerState 中有对应的委托)
-	 GetTaFeiPS()->OnXPChangedDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnXPChanged);
-	GetTaFeiPS()->OnLevelChangedDelegate.AddLambda(
-		[this](int32 NewLevel)
-		{
-			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);		
-		}
-	);
 	
 
-	// 绑定 Gameplay Effect 带来的屏幕消息 (拾取物品、提示等)
+	//  绑定技能与屏幕消息
 	if (GetTaFeiASC())
 	{
+		// --- 修复：绑定初始技能的监听，防止 UI 没反应 ---
+		if (GetTaFeiASC()->bStartupAbilitiesGiven)
+		{
+			OnInitializeStartupAbilities(GetTaFeiASC());
+		}
+		else
+		{
+			GetTaFeiASC()->AbilitiesGivenDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnInitializeStartupAbilities);
+		}
+
 		// 监听 ASC 广播过来的 EffectAssetTags
 		GetTaFeiASC()->EffectAssetTags.AddLambda(
-			[this](const FGameplayTagContainer& AssetTags)
-			{
-				for (const FGameplayTag& Tag : AssetTags)
-				{
-					// 过滤出 "Message" 开头的标签 (例如 Message.HealthPotion)
-					FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
-					if (Tag.MatchesTag(MessageTag))
+		   [this](const FGameplayTagContainer& AssetTags)
+		   {
+			  for (const FGameplayTag& Tag : AssetTags)
+			  {
+				 // 过滤出 "Message" 开头的标签 (例如 Message.HealthPotion)
+				 FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+				 if (Tag.MatchesTag(MessageTag))
+				 {
+					const FTaFeiUIWidgetRow* Row = GetDataTableRowByTag<FTaFeiUIWidgetRow>(MessageWidgetDataTable, Tag);
+					if (Row)
 					{
-						const FTaFeiUIWidgetRow* Row = GetDataTableRowByTag<FTaFeiUIWidgetRow>(MessageWidgetDataTable, Tag);
-						if (Row)
-						{
-							MessageWidgetRowDelegate.Broadcast(*Row);
-						}
+					   MessageWidgetRowDelegate.Broadcast(*Row);
 					}
-				}
-			}
+				 }
+			  }
+		   }
 		);
 	}
+}
+// 修复：形参必须改成 TaFeiASC，不要遗留 Aura 的名字
+void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySystemComponent* TaFeiASC)
+{
+	if (!TaFeiASC->bStartupAbilitiesGiven) return;
+
+	FForEachAbility BroadcastDelegate;
+    
+	// 修复：Lambda 捕获此处的 TaFeiASC
+	BroadcastDelegate.BindLambda([this, TaFeiASC](const FGameplayAbilitySpec& AbilitySpec)
+	{
+	   // 1. 获取该技能的 Tag
+	   FGameplayTag AbilityTag = TaFeiASC->GetAbilityTagFromSpec(AbilitySpec);
+       
+	   // 2. 从你配置好的 AbilityInfo 中查找 UI 信息
+	   FGAAbilityInfo Info = GAAbilityInfo->FindAbilityInfoForTag(AbilityTag);
+       
+	   // 3. 获取该技能当前绑定的输入 Tag
+	   Info.InputTag = TaFeiASC->GetInputTagFromSpec(AbilitySpec);
+       
+	   // 4. 广播给蓝图 UI
+	   AbilityInfoDelegate.Broadcast(Info);
+	});
+    
+	TaFeiASC->ForEachAbility(BroadcastDelegate);
 }
 
 // 预留的 XP 转换逻辑，等你以后做 LevelUpInfo 数据资产时可以在这里写逻辑
