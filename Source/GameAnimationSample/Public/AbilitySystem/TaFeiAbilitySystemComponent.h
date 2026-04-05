@@ -8,6 +8,8 @@
 #include "TaFeiAbilitySystemComponent.generated.h"
 
 
+class UCharacterClassInfo;
+enum class ETaFeiCharacterClass : uint8;
 // ★ 前置声明，避免致命循环依赖
 class UTaFeiAbilitySystemComponent;
 
@@ -30,6 +32,10 @@ public:
 	FEffectAssetTags EffectAssetTags;
 	FAbilitiesGiven AbilitiesGivenDelegate; // 新增：UI 监听这个委托来初始化技能图标
 
+
+	//这里Aura用的是：AddCharacterAbilities,我们这里让PlayerState职责减轻，都放在ASC中干活
+	void AddStartupAbilitiesFromData(const UCharacterClassInfo* CharacterData, ETaFeiCharacterClass CharacterClass, int32 Level);
+			
 	bool bStartupAbilitiesGiven = false; // 新增：标记初始技能是否已经发放
 
 	// 新增：遍历所有激活技能的辅助函数

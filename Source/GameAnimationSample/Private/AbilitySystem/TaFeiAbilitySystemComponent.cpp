@@ -4,6 +4,7 @@
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/TaFeiPlayerInterface.h"
 
 UTaFeiAbilitySystemComponent::UTaFeiAbilitySystemComponent()
@@ -75,16 +76,17 @@ FGameplayTag UTaFeiAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplay
 {
 	if (AbilitySpec.Ability)
 	{
-		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		const FGameplayTagContainer& Tags = AbilitySpec.Ability->GetAssetTags(); //API  换用TagContainer
+
+		for (const FGameplayTag& Tag : Tags)
 		{
-			// 匹配你项目里的 Abilities 父级标签 (例如 Abilities.Attack.ComboLMB)
 			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
 			{
 				return Tag;
 			}
 		}
 	}
-	return FGameplayTag();	
+	return FGameplayTag();
 }
 
 FGameplayTag UTaFeiAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
@@ -100,6 +102,33 @@ FGameplayTag UTaFeiAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAb
 	return FGameplayTag();
 }
 
+void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterClassInfo* CharacterData, ETaFeiCharacterClass CharacterClass, int32 Level)
+{
+	if (!CharacterData) return;
+
+	const FTaFeiCharacterClassDefaultInfo& ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
+
+	for (const FTaFeiAbilityInfo& AbilityInfo : ClassInfo.StartupAbilities)
+	{
+		if (!AbilityInfo.AbilityClass) continue;
+
+		FGameplayAbilitySpec Spec(AbilityInfo.AbilityClass, Level);
+
+		if (AbilityInfo.InputTag.IsValid())
+		{
+			Spec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
+		}
+
+		GiveAbility(Spec);
+	}
+
+	// ★ 核心：在这里统一标记并广播！
+	// 这是在服务器端执行的，如果是局域网主机(Listen Server)玩家，UI 会在这里立刻触发
+	bStartupAbilitiesGiven = true;
+	AbilitiesGivenDelegate.Broadcast(this);
+}
+
+
 void UTaFeiAbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
@@ -108,7 +137,7 @@ void UTaFeiAbilitySystemComponent::OnRep_ActivateAbilities()
 	if (!bStartupAbilitiesGiven)
 	{
 		bStartupAbilitiesGiven = true;
-		AbilitiesGivenDelegate.Broadcast(this);
+		AbilitiesGivenDelegate.Broadcast(this); // 客户端在这里触发 UI 刷新！
 	}
 }
 

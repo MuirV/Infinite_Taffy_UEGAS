@@ -99,16 +99,16 @@ void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySy
 	// 修复：Lambda 捕获此处的 TaFeiASC
 	BroadcastDelegate.BindLambda([this, TaFeiASC](const FGameplayAbilitySpec& AbilitySpec)
 	{
-	   // 1. 获取该技能的 Tag
+	   //获取该技能的 Tag
 	   FGameplayTag AbilityTag = TaFeiASC->GetAbilityTagFromSpec(AbilitySpec);
        
-	   // 2. 从你配置好的 AbilityInfo 中查找 UI 信息
-	   FGAAbilityInfo Info = GAAbilityInfo->FindAbilityInfoForTag(AbilityTag);
+	   // 从你配置好的 AbilityInfo 中查找 UI 信息
+	   FGAAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
        
-	   // 3. 获取该技能当前绑定的输入 Tag
+	   // 获取该技能当前绑定的输入 Tag
 	   Info.InputTag = TaFeiASC->GetInputTagFromSpec(AbilitySpec);
        
-	   // 4. 广播给蓝图 UI
+	   //  广播给蓝图 UI
 	   AbilityInfoDelegate.Broadcast(Info);
 	});
     

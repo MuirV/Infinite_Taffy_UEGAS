@@ -224,41 +224,49 @@ void ATaFeiPlayerState::InitializeAttributes()
 // 实现赋予技能逻辑
 void ATaFeiPlayerState::AddStartupAbilities()
 {
-    // 如果没有配置 DataAsset，跳过
-    if (!AbilitySystemComponent || !CharacterData)
-    {
-       return;
-    }
+	// 只有服务器有资格给技能
+	if (!HasAuthority()) return;
 
-	// characterclassinfo新增enum后：从字典里查出当前角色(Player)对应的专属数据包
-	FTaFeiCharacterClassDefaultInfo ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
-
-    // 遍历数据包里的初始技能
-    for (const FTaFeiAbilityInfo& AbilityInfo : ClassInfo.StartupAbilities)
-    {
-       // 确保技能类不是空的
-       if (AbilityInfo.AbilityClass)
-       {
-          // 给 ASC 赋予这个技能
-          FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, GetPlayerLevel());
-
-          // 如果配置了输入标签，就把它注入到技能实例的动态标签中
-          if (AbilityInfo.InputTag.IsValid())
-          {
-             AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
-          }
-
-          // 正式把技能交给 ASC
-          AbilitySystemComponent->GiveAbility(AbilitySpec);
-       }
-    }
-
-	// --- 在 for 循环结束后加上这两行 (需要将 ASC 强转为 TaFeiASC 才能访问) ---
-	//TODO:有待商催
+	// 获取 ASC 并发号施令，把所有的活儿丢给 ASC 去干
 	if (UTaFeiAbilitySystemComponent* TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent))
 	{
-		TaFeiASC->bStartupAbilitiesGiven = true;
-		TaFeiASC->AbilitiesGivenDelegate.Broadcast(TaFeiASC);
+		TaFeiASC->AddStartupAbilitiesFromData(CharacterData, CharacterClass, GetPlayerLevel());
 	}
+ //    //这里完全重构了，为了减轻PlayerState的职责，我们选择AddStartupAbilitiesFromData()都写在Asc中，干脏活累活。不然以后AI都要复制一遍PlayerState的代码
+ //    if (!AbilitySystemComponent || !CharacterData)
+ //    {
+ //       return;
+ //    }
+ //
+	// // characterclassinfo新增enum后：从字典里查出当前角色(Player)对应的专属数据包
+	// FTaFeiCharacterClassDefaultInfo ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
+ //
+ //    // 遍历数据包里的初始技能
+ //    for (const FTaFeiAbilityInfo& AbilityInfo : ClassInfo.StartupAbilities)
+ //    {
+ //       // 确保技能类不是空的
+ //       if (AbilityInfo.AbilityClass)
+ //       {
+ //          // 给 ASC 赋予这个技能
+ //          FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, GetPlayerLevel());
+ //
+ //          // 如果配置了输入标签，就把它注入到技能实例的动态标签中
+ //          if (AbilityInfo.InputTag.IsValid())
+ //          {
+ //             AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
+ //          }
+ //
+ //          // 正式把技能交给 ASC
+ //          AbilitySystemComponent->GiveAbility(AbilitySpec);
+ //       }
+ //    }
+ //
+	// // --- 在 for 循环结束后加上这两行 (需要将 ASC 强转为 TaFeiASC 才能访问) ---
+	// //有待商催  确实架构上存在问题，如果bStartupAbilitiesGiven都写在PlayerState，会导致职责过重，以后拓展AI和敌人都得复制一遍PlayerState
+	// if (UTaFeiAbilitySystemComponent* TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent))
+	// {
+	// 	TaFeiASC->bStartupAbilitiesGiven = true;
+	// 	TaFeiASC->AbilitiesGivenDelegate.Broadcast(TaFeiASC);
+	// }
 	
 }

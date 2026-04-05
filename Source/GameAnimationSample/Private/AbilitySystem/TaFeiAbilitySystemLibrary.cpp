@@ -92,7 +92,7 @@ void UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(const UObject* Wor
 			// 如果你有输入标签，也可以在这里注入
 			if (AbilityInfo.InputTag.IsValid())
 			{
-				AbilitySpec.DynamicAbilityTags.AddTag(AbilityInfo.InputTag);
+				AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
 			}
             
 			ASC->GiveAbility(AbilitySpec);
