@@ -86,16 +86,16 @@ protected:
 	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Player;
 
 	// 网络同步变量
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_Level, Category = "TaFei|PlayerStats")
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = "OnRep_Level", Category = "TaFei|PlayerStats")
 	int32 Level = 1;
 
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_XP, Category = "TaFei|PlayerStats")
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = "OnRep_XP", Category = "TaFei|PlayerStats")
 	int32 XP = 0;
 
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = "OnRep_AttributePoints")
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = "OnRep_AttributePoints", Category = "TaFei|PlayerStats")
 	int32 AttributePoints = 0;
 
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = "OnRep_SpellPoints")
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = "OnRep_SpellPoints", Category = "TaFei|PlayerStats")
 	int32 SpellPoints = 1;
 	
 	// 辅助函数：初始化属性 (应用 GE)
