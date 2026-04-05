@@ -2,10 +2,16 @@
 
 
 #include "Character/EnemyBase.h"
+
+#include "AIController.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "TaFeiGameplayTags.h" 
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "UI/Widget/TaFeiUserWidget.h"
 
 // Sets default values
 AEnemyBase::AEnemyBase()
@@ -24,19 +30,30 @@ AEnemyBase::AEnemyBase()
 	GetMesh()->SetGenerateOverlapEvents(true);
 
 	// --- 实例化 GAS 组件 ---
-	AbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
-	AbilitySystemComponent->SetIsReplicated(true);
+	TaFeiAbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
+	TaFeiAbilitySystemComponent->SetIsReplicated(true);
 	
 	// AI 敌人强烈推荐用 Minimal 模式，节省服务器带宽
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	TaFeiAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
-	AttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
+	TaFeiAttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
 
+	// 运动设置
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	// 血条 UI
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
+	HealthBar->SetupAttachment(GetRootComponent());
+	
 }
 
 UAbilitySystemComponent* AEnemyBase::GetAbilitySystemComponent() const
 {
-	return AbilitySystemComponent;
+	return TaFeiAbilitySystemComponent;
 }
 
 int32 AEnemyBase::GetPlayerLevel_Implementation() const
@@ -63,9 +80,52 @@ ETaFeiCharacterClass AEnemyBase::GetCharacterClass_Implementation()
 	return ITaFeiCombatInterface::GetCharacterClass_Implementation();
 }
 
+void AEnemyBase::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+	
+	if(TaFeiAIController && TaFeiAIController->GetBlackboardComponent())
+	{
+		TaFeiAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+	}
+}
+
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	
+	// 初始化 GAS 信息
+	InitAbilityActorInfo();
+
+	// 给血条 UI 设置控制器 (敌人自己就是控制器)
+	if (UTaFeiUserWidget* TaFeiUserWidget = Cast<UTaFeiUserWidget>(HealthBar->GetUserWidgetObject()))
+	{
+		TaFeiUserWidget->SetWidgetController(this);
+	}
+
+	// 绑定属性变化监听
+	if (TaFeiAbilitySystemComponent && TaFeiAttributeSet)
+	{
+		TaFeiAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TaFeiAttributeSet->GetHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data) { OnHealthChanged.Broadcast(Data.NewValue); }
+		);
+		TaFeiAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(TaFeiAttributeSet->GetMaxHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data) { OnMaxHealthChanged.Broadcast(Data.NewValue); }
+		);
+
+		// 监听受击 Tag
+		// 注意：请确保你的受击 Tag 是确切注册过的，比如 FName("Effects.HitReact")
+		FGameplayTag HitReactTag = FGameplayTag::RequestGameplayTag(FName("Effects.HitReact"));
+		TaFeiAbilitySystemComponent->RegisterGameplayTagEvent(HitReactTag, EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this, &AEnemyBase::HitReactTagChanged
+		);
+       
+		// 广播初始值
+		OnHealthChanged.Broadcast(TaFeiAttributeSet->GetHealth());
+		OnMaxHealthChanged.Broadcast(TaFeiAttributeSet->GetMaxHealth());
+	}
 }
 
 void AEnemyBase::PossessedBy(AController* NewController)
@@ -77,25 +137,57 @@ void AEnemyBase::PossessedBy(AController* NewController)
 	{
 		InitializeGAS();
 	}
+
+	// if (!HasAuthority()) return;
+	//
+	// TaFeiAIController = Cast<AAIController>(NewController);
+	// if (TaFeiAIController && BehaviorTree)
+	// {
+	// 	TaFeiAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	// 	TaFeiAIController->RunBehaviorTree(BehaviorTree);
+	// 	TaFeiAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	// 	// 判断是否是远程攻击者，写入黑板
+	// 	TaFeiAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ETaFeiCharacterClass::Warrior);
+	// }
+}
+
+void AEnemyBase::InitAbilityActorInfo()
+{
+	// 对于敌人：Owner 和 Avatar 都是自己！
+	TaFeiAbilitySystemComponent->InitAbilityActorInfo(this, this);
+	TaFeiAbilitySystemComponent->AbilityActorInfoSet();
+
+	if (HasAuthority())
+	{
+		InitializeDefaultAttributes();
+		
+		// ★ 直接复用我们上次写在 ASC 里的完美函数！极度优雅！
+		TaFeiAbilitySystemComponent->AddStartupAbilitiesFromData(CharacterData, CharacterClass, Level);
+	}
+}
+
+void AEnemyBase::InitializeDefaultAttributes() const
+{
+	
 }
 
 void AEnemyBase::InitializeGAS()
 {
-	if (AbilitySystemComponent)
+	if (TaFeiAbilitySystemComponent)
 	{
 		// 对于敌人，灵魂(Owner)和肉体(Avatar)都是它自己
-		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		TaFeiAbilitySystemComponent->InitAbilityActorInfo(this, this);
 		
 		// 应用初始属性 GE
 		if (HasAuthority() && DefaultAttributes)
 		{
-			FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+			FGameplayEffectContextHandle ContextHandle = TaFeiAbilitySystemComponent->MakeEffectContext();
 			ContextHandle.AddSourceObject(this);
-			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, ITaFeiCombatInterface::Execute_GetPlayerLevel(this), ContextHandle);
+			FGameplayEffectSpecHandle SpecHandle = TaFeiAbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, ITaFeiCombatInterface::Execute_GetPlayerLevel(this), ContextHandle);
 			
 			if (SpecHandle.IsValid())
 			{
-				AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+				TaFeiAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 			}
 		}
 	}
@@ -104,9 +196,11 @@ void AEnemyBase::InitializeGAS()
 void AEnemyBase::HitReact_Implementation()
 {
 	// 留给蓝图实现：播放受击蒙太奇或特效
+	
 }
 
 void AEnemyBase::Die_Implementation()
 {
 	// 留给蓝图实现：布娃娃系统、掉落物、死亡特效等
+	
 }

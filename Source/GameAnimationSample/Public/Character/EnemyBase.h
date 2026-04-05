@@ -10,6 +10,13 @@
 
 class UTaFeiAbilitySystemComponent;
 class UTaFeiAttributeSet;
+class UWidgetComponent;
+class UBehaviorTree;
+class AAIController;
+class UCharacterClassInfo; // 你的数据资产类
+
+// 属性变化的多播委托（给蓝图血条用的）
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTaFeiAttributeChangedSignature, float, NewValue);
 
 UCLASS()
 class GAMEANIMATIONSAMPLE_API AEnemyBase : public ACharacter, public IAbilitySystemInterface, public ITaFeiCombatInterface
@@ -21,27 +28,41 @@ public:
 	AEnemyBase();
 	// ~IAbilitySystemInterface 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UTaFeiAttributeSet* GetAttributeSet() const { return AttributeSet; }
+	UTaFeiAttributeSet* GetAttributeSet() const { return TaFeiAttributeSet; }
 
 	// ~ITaFeiCombatInterface
 	virtual int32 GetPlayerLevel_Implementation() const override;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual ETaFeiCharacterClass GetCharacterClass_Implementation() override;
 
-protected:
+	UPROPERTY(BlueprintAssignable)
+	FOnTaFeiAttributeChangedSignature OnHealthChanged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
-	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Mob;
+	UPROPERTY(BlueprintAssignable)
+	FOnTaFeiAttributeChangedSignature OnMaxHealthChanged;
+	
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	bool bHitReacting = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float BaseWalkSpeed = 250.f;
+
+	
+protected:
 	
 	virtual void BeginPlay() override;
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void InitAbilityActorInfo();
+	virtual void InitializeDefaultAttributes() const ;
 
 	// --- GAS 核心组件 ---
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
-	TObjectPtr<UTaFeiAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UTaFeiAbilitySystemComponent> TaFeiAbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
-	TObjectPtr<UTaFeiAttributeSet> AttributeSet;
+	TObjectPtr<UTaFeiAttributeSet> TaFeiAttributeSet;
 
 
 	// 敌人的初始属性 GE
@@ -55,6 +76,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	int32 XPReward = 50;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Mob;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	TObjectPtr<UCharacterClassInfo> CharacterData;
+	
 	// --- 插槽配置 (Socket) ---
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	FName WeaponSocketName = FName("WeaponSocket");
@@ -71,6 +98,15 @@ protected:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|Combat")
 	void Die();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UWidgetComponent> HealthBar;
+
+	UPROPERTY(EditAnywhere, Category = "AI")
+	TObjectPtr<UBehaviorTree> BehaviorTree;
+
+	UPROPERTY()
+	TObjectPtr<AAIController> TaFeiAIController;
 	
 private:
 	// 辅助函数：初始化 GAS
