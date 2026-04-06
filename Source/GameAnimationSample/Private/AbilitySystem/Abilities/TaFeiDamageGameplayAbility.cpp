@@ -11,16 +11,38 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	// 安全检查
 	if (!DamageEffectClass || !TargetActor) return;
 
+	// 1. 检查 TargetActor
+	if (!TargetActor)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: TargetActor 为空！(圆没画到人)"));
+		return;
+	}
+
+	// 2. 检查 GE 类是否配置
+	if (!DamageEffectClass)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: GA蓝图里没有配置 DamageEffectClass！"));
+		return;
+	}
+	
 	// 获取受击者的 ASC (肉体如果是 BP_SandboxCharacter，这里依然能取到它挂在 PlayerState 上的 ASC)
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-	if (!TargetASC) return;
+	if (!TargetASC)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: 敌人身上或PlayerState里找不到 ASC！"));
+		return;
+	}
 
 	// 生成 GE 的实例 (Spec)
 	// GetAbilityLevel() 会返回我们在 PlayerState 中赋予技能时传入的等级 (就是人物当前等级)
 	const float CurrentLevel = GetAbilityLevel();
 	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, CurrentLevel);
 
-	if (!DamageSpecHandle.IsValid()) return;
+	if (!DamageSpecHandle.IsValid())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: GE Spec 生成失败！"));
+		return;
+	}
 
 	//遍历我们配置的所有伤害类型 (比如这个技能既有物理伤害又有魔法伤害)
 	for (const TTuple<FGameplayTag, FScalableFloat>& Pair : DamageTypes)
@@ -30,10 +52,16 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 		
 		// 通过 SetByCaller 把查出来的伤害数值“打包”进 GE 里，贴上对应的 Tag 标签
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, Pair.Key, ScaledDamage);
+
+		// 打印具体打包了多少伤害
+		FString Msg = FString::Printf(TEXT("成功打包伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
+		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Msg);
 	}
 
 	//把打包好的伤害 GE 应用给目标
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("CauseDamage 成功执行！GE已应用给敌人！"));
 }
 
 UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
