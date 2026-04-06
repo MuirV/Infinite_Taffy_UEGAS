@@ -166,4 +166,14 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 			FName("Attributes.Secondary.MaxMana"),
 			FString("Maximum mana")
 		);
+
+	/*
+	 * Effects
+	 */
+    
+	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+   FName("Effects.HitReact"),
+   FString("Tag granted when Hit Reacting")
+   );
+	
 }

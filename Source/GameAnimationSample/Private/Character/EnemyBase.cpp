@@ -202,5 +202,6 @@ void AEnemyBase::HitReact_Implementation()
 void AEnemyBase::Die_Implementation()
 {
 	// 留给蓝图实现：布娃娃系统、掉落物、死亡特效等
+	SetLifeSpan(LifeSpan);
 	
 }

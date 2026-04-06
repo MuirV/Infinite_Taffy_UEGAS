@@ -19,15 +19,15 @@
 UTaFeiAttributeSet::UTaFeiAttributeSet()
 {
 	// 给个默认初始值，方便测试
-	InitHealth(100.f);
-	InitMaxHealth(100.f);
-	InitMana(200.f);
-	InitMaxMana(200.f);
-	InitUltimateEnergy(0.f);
-	InitMaxUltimateEnergy(100.f);
-	InitDamageMultiplier(1.0f);
-	InitDamageReduction(0.0f); 
-	InitIncomingDamage(0.0f);
+	// InitHealth(100.f);
+	// InitMaxHealth(100.f);
+	// InitMana(200.f);
+	// InitMaxMana(200.f);
+	// InitUltimateEnergy(0.f);
+	// InitMaxUltimateEnergy(100.f);
+	// InitDamageMultiplier(1.0f);
+	// InitDamageReduction(0.0f); 
+	// InitIncomingDamage(0.0f);
 
 	const FTaFeiGameplayTags& GameplayTags = FTaFeiGameplayTags::Get();
 	
@@ -163,7 +163,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 		SetUltimateEnergy(FMath::Clamp(GetUltimateEnergy(), 0.f, GetMaxUltimateEnergy()));
 	}
 
-	// ★ 扣血逻辑 (IncomingDamage)
+	//  扣血逻辑 (IncomingDamage)
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
@@ -181,13 +181,22 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 				// 调用你的战斗接口里的 Die() 逻辑
 				if (ITaFeiCombatInterface* CombatInterface = Cast<ITaFeiCombatInterface>(Props.TargetAvatarActor))
 				{
-					// 注意：这里后续如果有死亡事件发送的需求可以补上
-					// CombatInterface->Die(); 
+					// 死亡事件发送
+					CombatInterface->Die(); 
 				}
+				SendXPEvent(Props);
 			}
 			else
 			{
 				// 没死则播放受击动画 (如果需要的话，后续可在这里加发送 HitReact Event)
+				FGameplayEventData Payload;
+				Payload.EventTag = FTaFeiGameplayTags::Get().Effects_HitReact;
+				Payload.Instigator = Props.SourceAvatarActor;
+				Payload.Target = Props.TargetAvatarActor;
+				Payload.EventMagnitude = LocalIncomingDamage; // 把伤害值传过去，万一蓝图里想根据伤害大小播不同动画
+
+				// 2. 发送 Gameplay Event 给受击者
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.TargetAvatarActor, FTaFeiGameplayTags::Get().Effects_HitReact, Payload);
 			}
 			
 			// 只有发起攻击的是玩家，我们才让他的屏幕上飘字
