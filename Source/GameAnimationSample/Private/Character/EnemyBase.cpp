@@ -132,6 +132,8 @@ void AEnemyBase::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
+	if (!HasAuthority()) return; //PossessedBy本来就只在服务器运行，加上这个判断略显冗余
+	
 	// AI 只有在服务器端被 Controller 附身时才初始化 GAS
 	if (HasAuthority())
 	{
@@ -196,6 +198,7 @@ void AEnemyBase::InitializeGAS()
 void AEnemyBase::HitReact_Implementation()
 {
 	// 留给蓝图实现：播放受击蒙太奇或特效
+	
 	
 }
 
