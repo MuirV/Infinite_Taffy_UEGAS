@@ -8,6 +8,25 @@
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "TaFeiCombatInterface.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FTaFeiTaggedMontage
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	UAnimMontage* Montage = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	FGameplayTag MontageTag; // 比如：Abilities.Attack.ComboLMB
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag SocketTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundBase* ImpactSound = nullptr;
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
 class UTaFeiCombatInterface : public UInterface
@@ -49,6 +68,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsDead() const;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
+	TArray<FTaFeiTaggedMontage> GetAttackMontages();
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	ETaFeiCharacterClass GetCharacterClass();
 };

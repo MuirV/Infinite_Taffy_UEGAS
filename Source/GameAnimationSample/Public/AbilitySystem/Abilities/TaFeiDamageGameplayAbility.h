@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "ScalableFloat.h"
+#include "Interaction/TaFeiCombatInterface.h"
 #include "TaFeiDamageGameplayAbility.generated.h"
 
 /**
@@ -27,7 +28,7 @@ public:
 protected:
 	// 指定这个技能要应用哪个 GameplayEffect 来扣血（通常填一个只有 SetByCaller 属性的 GE）
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Damage")
-	TSubclassOf<class UGameplayEffect> DamageEffectClass;
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	// 核心：伤害类型 Tag 到 可缩放浮点数 的映射字典
 	// 比如：Key = "Damage.Physical", Value = 查表的 ScalableFloat
@@ -37,4 +38,7 @@ protected:
 	// ★ 新增：这个技能专属的连招蒙太奇标签
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Combat")
 	FGameplayTag CombatMontageTag;
+
+	UFUNCTION(BlueprintPure)
+	FTaFeiTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaFeiTaggedMontage>& TaggedMontages) const;
 };

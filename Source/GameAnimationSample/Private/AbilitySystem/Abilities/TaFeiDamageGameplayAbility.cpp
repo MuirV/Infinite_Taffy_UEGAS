@@ -51,3 +51,16 @@ UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
 	// 如果角色没实现接口，或者找不到，返回空
 	return nullptr;
 }
+
+
+FTaFeiTaggedMontage UTaFeiDamageGameplayAbility::GetRandomTaggedMontageFromArray(const TArray<FTaFeiTaggedMontage>& TaggedMontages) const
+{
+	if (TaggedMontages.Num() > 0)
+	{
+		const int32 Selection = FMath::RandRange(0, TaggedMontages.Num() - 1);
+		return TaggedMontages[Selection];
+	}
+	
+	
+	return FTaFeiTaggedMontage();
+}
