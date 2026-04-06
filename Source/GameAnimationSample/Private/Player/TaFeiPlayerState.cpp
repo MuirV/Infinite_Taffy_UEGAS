@@ -8,6 +8,7 @@
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/TaFeiPlayerController.h"
+#include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
 #include "UI/HUD/TaFeiHUD.h"
 
 ATaFeiPlayerState::ATaFeiPlayerState()
@@ -185,8 +186,11 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 // 实现初始化属性逻辑
 void ATaFeiPlayerState::InitializeAttributes()
 {
-	// 如果没有配置 DataAsset，或者没有配置 PrimaryAttributes(GE)，则跳过
-	if (!AbilitySystemComponent || !CharacterData )
+	// ★ 重构：通过全局 Library 从 GameMode 获取 CharacterClassInfo
+	UCharacterClassInfo* CharacterData = UTaFeiAbilitySystemLibrary::GetCharacterClassInfo(this);
+
+	// 如果 ASC 无效，或者从 GameMode 没拿到数据，直接退出
+	if (!AbilitySystemComponent || !CharacterData)
 	{
 		return;
 	}
@@ -194,14 +198,12 @@ void ATaFeiPlayerState::InitializeAttributes()
 	// 制作一个 GE 的上下文 (Context)，记录是谁施加的这个 GE
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
-
-	// 【重构】：将原来的 1.f 改为 GetPlayerLevel()
 	float CurrentLevel = static_cast<float>(GetPlayerLevel());
 	
-	// 核心改动：先从字典里查出当前角色(Player)对应的专属数据包
+	// 从字典里查出当前角色(Player)对应的专属数据包
 	FTaFeiCharacterClassDefaultInfo ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
 
-    // 初始化主属性 (使用查出来的数据包里的 PrimaryAttributes)
+	// 初始化主属性 (使用查出来的数据包里的 PrimaryAttributes)
 	if (ClassInfo.PrimaryAttributes)
 	{
 		FGameplayEffectSpecHandle PrimarySpec = AbilitySystemComponent->MakeOutgoingSpec(ClassInfo.PrimaryAttributes, CurrentLevel, ContextHandle);
@@ -211,7 +213,7 @@ void ATaFeiPlayerState::InitializeAttributes()
 		}
 	}
 
-    // 初始化副属性 (使用公共的 SecondaryAttributes)
+	// 初始化副属性 (使用公共的 SecondaryAttributes)
 	if (CharacterData->SecondaryAttributes)
 	{
 		FGameplayEffectSpecHandle SecondarySpec = AbilitySystemComponent->MakeOutgoingSpec(CharacterData->SecondaryAttributes, CurrentLevel, ContextHandle);
@@ -221,7 +223,7 @@ void ATaFeiPlayerState::InitializeAttributes()
 		}
 	}
 
-    //  初始化核心生命法力 (使用公共的 VitalAttributes)
+	// 初始化核心生命法力 (使用公共的 VitalAttributes)
 	if (CharacterData->VitalAttributes)
 	{
 		FGameplayEffectSpecHandle VitalSpec = AbilitySystemComponent->MakeOutgoingSpec(CharacterData->VitalAttributes, CurrentLevel, ContextHandle);
@@ -237,7 +239,10 @@ void ATaFeiPlayerState::AddStartupAbilities()
 {
 	// 只有服务器有资格给技能
 	if (!HasAuthority()) return;
-
+	
+	// 重构：通过全局 Library 从 GameMode 获取 CharacterClassInfo
+	UCharacterClassInfo* CharacterData = UTaFeiAbilitySystemLibrary::GetCharacterClassInfo(this);
+	
 	// 获取 ASC 并发号施令，把所有的活儿丢给 ASC 去干
 	if (UTaFeiAbilitySystemComponent* TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent))
 	{

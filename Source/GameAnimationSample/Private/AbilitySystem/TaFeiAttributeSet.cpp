@@ -226,7 +226,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 					const int32 NumLevelUps = NewLevel - CurrentLevel;
 					if (NumLevelUps > 0)
 					{
-						// ⚠️ 注意：这里务必确保你的接口头文件里名字改成了 Reward，否则会编译报错
+						//  注意：这里务必确保你的接口头文件里名字改成了 Reward，否则会编译报错
 						const int32 AttributePointsReward = ITaFeiPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
 						const int32 SpellPointsReward = ITaFeiPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
 

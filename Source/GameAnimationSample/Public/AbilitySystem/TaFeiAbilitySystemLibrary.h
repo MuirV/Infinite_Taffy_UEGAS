@@ -56,7 +56,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="TaFei|Combat")
 	static bool IsNotFriend(AActor* FirstActor, AActor* SecondActor);
 
-	// 获取指定半径内存活的玩家/敌人 (用于 AOE 范围伤害)
-	UFUNCTION(BlueprintCallable, Category="TaFei|Combat", meta=(DefaultToSelf="WorldContextObject"))
-	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin);
+	// // 获取指定半径内存活的玩家/敌人 (用于 AOE 范围伤害)
+	// UFUNCTION(BlueprintCallable, Category="TaFei|Combat", meta=(DefaultToSelf="WorldContextObject"))
+	// static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin);
 };

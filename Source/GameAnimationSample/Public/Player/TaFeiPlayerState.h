@@ -41,10 +41,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|PlayerState")
 	int32 GetPlayerLevel() const { return Level; }
 
-
-	// 暴露给蓝图，用于在编辑器里把填好的 DataAsset 塞进来
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
-	TObjectPtr<UCharacterClassInfo> CharacterData;
+	//  重构，这个要写在Gamemode里面
+	// // 暴露给蓝图，用于在编辑器里把填好的 DataAsset 塞进来
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
+	// TObjectPtr<UCharacterClassInfo> CharacterData;
 	
 	// 给蓝图配置的升级数据
 	UPROPERTY(EditDefaultsOnly, Category = "TaFei|LevelUp")

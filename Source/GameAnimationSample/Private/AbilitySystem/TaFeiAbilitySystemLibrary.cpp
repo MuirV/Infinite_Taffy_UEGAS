@@ -4,6 +4,7 @@
 
 #include "TaFeiAbilityTypes.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
+#include "Game/TaFeiGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/TaFeiPlayerState.h"
 #include "UI/HUD/TaFeiHUD.h"
@@ -116,25 +117,20 @@ int32 UTaFeiAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* Wor
 
 UCharacterClassInfo* UTaFeiAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
+	// 从 World 中获取 GameMode 并转换
+	if (ATaFeiGameModeBase* TaFeiGameMode = Cast<ATaFeiGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject)))
 	{
-		// 2. 获取你的 TaFeiPlayerState
-		if (ATaFeiPlayerState* PS = PC->GetPlayerState<ATaFeiPlayerState>())
-		{
-			// 3. 返回你在 PlayerState 里填写的 CharacterData
-			return PS->CharacterData;
-		}
+		return TaFeiGameMode->CharacterClassInfo;
 	}
-    
 	return nullptr;
 	
 }
 
 bool UTaFeiAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
-	if (const FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	if (const FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext = static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-			return AuraEffectContext->IsBlockedHit();
+			return TaFeiGameplayEffectContext->IsBlockedHit();
 	}
 	
 	return false;
@@ -142,9 +138,9 @@ bool UTaFeiAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle
 
 bool UTaFeiAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
-	if (const FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	if (const FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext = static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		return AuraEffectContext->IsCriticalHit();
+		return TaFeiGameplayEffectContext->IsCriticalHit();
 	}
 	
 	return false;
@@ -152,18 +148,18 @@ bool UTaFeiAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandl
 
 void UTaFeiAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
 {
-	if (FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	if (FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext = static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		AuraEffectContext->SetIsBlockedHit(bInIsBlockedHit);	
+		TaFeiGameplayEffectContext->SetIsBlockedHit(bInIsBlockedHit);	
 	}
 }
 
 void UTaFeiAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle,
 	bool bInIsCriticalHit)
 {
-	if (FTaFeiGameplayEffectContext* AuraEffectContext = static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	if (FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext = static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		AuraEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+		TaFeiGameplayEffectContext->SetIsCriticalHit(bInIsCriticalHit);
 	}
 }
 
@@ -181,30 +177,30 @@ bool UTaFeiAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondA
 
 	return !bFriends; // 不是朋友就是敌人
 }
-
-// AOE 圆柱体/球体检测
-void UTaFeiAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
-{
-	FCollisionQueryParams SphereParams;
-	SphereParams.AddIgnoredActors(ActorsToIgnore);
-
-	TArray<FOverlapResult> Overlaps;
-	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
-	{
-		// 检测所有动态物体
-		World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(Radius), SphereParams);
-		
-		for (FOverlapResult& Overlap : Overlaps)
-		{
-			// 过滤条件：1. 实现了战斗接口 2. 没死 (使用你的接口写法，比如 ITaFeiCombatInterface)
-			if (Overlap.GetActor()->Implements<UTaFeiCombatInterface>())
-			{
-				// 这里假设你在接口里写了 IsDead 函数。如果你还没写，这行逻辑可以先注释掉，只收集 Actor
-				// if (!ITaFeiCombatInterface::Execute_IsDead(Overlap.GetActor()))
-				// {
-					OutOverlappingActors.AddUnique(Overlap.GetActor());
-				// }
-			}
-		}
-	}
-}
+//
+// // AOE 圆柱体/球体检测
+// void UTaFeiAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
+// {
+// 	FCollisionQueryParams SphereParams;
+// 	SphereParams.AddIgnoredActors(ActorsToIgnore);
+//
+// 	TArray<FOverlapResult> Overlaps;
+// 	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+// 	{
+// 		// 检测所有动态物体
+// 		World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(Radius), SphereParams);
+// 		
+// 		for (FOverlapResult& Overlap : Overlaps)
+// 		{
+// 			// 过滤条件：1. 实现了战斗接口 2. 没死 (使用你的接口写法，比如 ITaFeiCombatInterface)
+// 			if (Overlap.GetActor()->Implements<UTaFeiCombatInterface>())
+// 			{
+// 				// 这里假设你在接口里写了 IsDead 函数。如果你还没写，这行逻辑可以先注释掉，只收集 Actor
+// 				// if (!ITaFeiCombatInterface::Execute_IsDead(Overlap.GetActor()))
+// 				// {
+// 					OutOverlappingActors.AddUnique(Overlap.GetActor());
+// 				// }
+// 			}
+// 		}
+// 	}
+// }
