@@ -61,7 +61,7 @@ public:
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
-	// ★ 映射表：存放 GameplayTag 和 属性Getter函数 的绑定关系
+	//  映射表：存放 GameplayTag 和 属性Getter函数 的绑定关系  也为AttributeMenu获取属性值初始化作伏笔
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
 
 	/*
