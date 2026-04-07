@@ -189,17 +189,23 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 			else
 			{
 				// 遍历并打印敌人当前所有已经学会的技能名字
-				for (const FGameplayAbilitySpec& Spec : Props.TargetASC->GetActivatableAbilities())
-				{
-					if (Spec.Ability)
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("敌人已拥有技能: %s"), *Spec.Ability->GetName()));
-					}
-				}
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(FTaFeiGameplayTags::Get().Effects_HitReact);
-				
-				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+				// for (const FGameplayAbilitySpec& Spec : Props.TargetASC->GetActivatableAbilities())
+				// {
+				// 	if (Spec.Ability)
+				// 	{
+				// 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("敌人已拥有技能: %s"), *Spec.Ability->GetName()));
+				// 	}
+				// }
+				FGameplayEventData Payload;
+				Payload.EventTag = FTaFeiGameplayTags::Get().Effects_HitReact;
+				Payload.Instigator = Props.SourceAvatarActor;
+				Payload.Target = Props.TargetAvatarActor;
+
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+					Props.TargetAvatarActor,
+					Payload.EventTag,
+					Payload
+				);
 			}
 			
 			const bool bBlock = UTaFeiAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);

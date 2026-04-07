@@ -73,4 +73,6 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	ETaFeiCharacterClass GetCharacterClass();
+
+	
 };
