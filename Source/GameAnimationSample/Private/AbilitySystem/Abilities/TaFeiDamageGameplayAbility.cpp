@@ -49,6 +49,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 		// 通过 SetByCaller 把查出来的伤害数值“打包”进 GE 里，贴上对应的 Tag 标签
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, Pair.Key, ScaledDamage);
 
+	
 		// 打印具体打包了多少伤害
 		FString Msg = FString::Printf(TEXT("伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Msg);
