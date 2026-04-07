@@ -119,7 +119,7 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 		FGameplayAbilitySpec Spec(AbilityClass, Level);
 		GiveAbility(Spec);
 
-		UE_LOG(LogTemp, Warning, TEXT("🔥 [COMMON_ABILITY_GIVEN] %s"), *GetNameSafe(AbilityClass));
+		
 	}
 	
 	const FTaFeiCharacterClassDefaultInfo& ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);

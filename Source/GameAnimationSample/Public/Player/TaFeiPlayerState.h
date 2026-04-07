@@ -7,11 +7,13 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
+#include "Interaction/TaFeiCombatInterface.h"
 #include "Interaction/TaFeiPlayerInterface.h"
 #include "TaFeiPlayerState.generated.h"
 
 /**
- * 
+ * 传递经验值的问题，（由于不能使用Character作为C++父类）我们直接将PlayerInterface继承给PlayerState，这样能代而转发XP等数据
+ * 情非得已...竟然继承了两个接口，为何传递XP等数据也是拼了......
  */
 
 // 定义 UI 需要监听的委托
@@ -21,7 +23,7 @@ class UCharacterClassInfo;
 class UTaFeiAbilitySystemComponent;
 class UTaFeiAttributeSet;
 UCLASS()
-class GAMEANIMATIONSAMPLE_API ATaFeiPlayerState : public APlayerState, public ITaFeiPlayerInterface
+class GAMEANIMATIONSAMPLE_API ATaFeiPlayerState : public APlayerState, public ITaFeiPlayerInterface, public ITaFeiCombatInterface
 {
 	GENERATED_BODY()
 
@@ -37,10 +39,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GAS|Initialization")
 	void InitializeGASForPawn(APawn* AvatarPawn);
 
-	// 简单实现获取等级的 Getter
-	UFUNCTION(BlueprintCallable, Category = "TaFei|PlayerState")
-	int32 GetPlayerLevel() const { return Level; }
-
 	//  重构，这个要写在Gamemode里面
 	// // 暴露给蓝图，用于在编辑器里把填好的 DataAsset 塞进来
 	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|GAS|Data")
@@ -50,26 +48,36 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "TaFei|LevelUp")
 	TObjectPtr<ULevelUpInfo> LevelUpInfo;
 
+	// UI 监听的广播频道 （经验值系列）
 	FOnPlayerStatChanged OnXPChangedDelegate;
 	FOnPlayerStatChanged OnLevelChangedDelegate;
+	
 	FOnPlayerStatChanged OnAttributePointsChangedDelegate;
 	FOnPlayerStatChanged OnSpellPointsChangedDelegate;
 	
-	// ... 实现 ITaFeiPlayerInterface 的接口 ...
+	// ... 重写 ITaFeiPlayerInterface 的接口 ...
 	virtual int32 GetXP_Implementation() const override;
+	virtual void AddToXP_Implementation(int32 InXP) override;
+
+	virtual int32 GetPlayerLevel_Implementation() const override; // 注意这个可能在 CombatInterface 里，如果在 Combat 接口，记得也继承
+	virtual void AddToPlayerLevel_Implementation(int32 InPlayerLevel) override;
+	
 	virtual int32 FindLevelForXP_Implementation(int32 InXP) const override;
 	virtual int32 GetAttributePointsReward_Implementation(int32 InLevel) const override;
 	virtual int32 GetSpellPointsReward_Implementation(int32 InLevel) const override;
-	virtual void AddToPlayerLevel_Implementation(int32 InPlayerLevel) override;
-	virtual void AddToAttributePoints_Implementation(int32 InAttributePoints) override;
-	virtual void AddToSpellPoints_Implementation(int32 InSpellPoints) override;
-	virtual void AddToXP_Implementation(int32 InXP) override;
 	virtual void LevelUp_Implementation() override;
+	
 	virtual int32 GetAttributePoints_Implementation() const override;
+	virtual void AddToAttributePoints_Implementation(int32 InAttributePoints) override;
+
 	virtual int32 GetSpellPoints_Implementation() const override;
+	virtual void AddToSpellPoints_Implementation(int32 InSpellPoints) override;
+	
 	
 	void SetXP(int32 InXP);
 	void SetToLevel(int32 InLevel);
+
+	virtual void Die() override;
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")

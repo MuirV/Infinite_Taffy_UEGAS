@@ -22,14 +22,21 @@ void UTaFeiOverlayWidgetController::BroadcastInitialValues()
 
 void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 {
-	// 绑定经验与等级监听 (需要在 TaFeiPlayerState 中有对应的委托)
-	GetTaFeiPS()->OnXPChangedDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnXPChanged);
- 	GetTaFeiPS()->OnLevelChangedDelegate.AddLambda(
- 		[this](int32 NewLevel)
- 		{
- 			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);		
- 		}
- 	);
+	ATaFeiPlayerState* TaFeiPS = Cast<ATaFeiPlayerState>(PlayerState);
+	if (TaFeiPS)
+	{
+		// 绑定经验值变化
+		TaFeiPS->OnXPChangedDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnXPChanged);
+        
+		// 新增：绑定等级变化！
+		TaFeiPS->OnLevelChangedDelegate.AddLambda(
+			[this](int32 NewLevel)
+			{
+				// 向 UI 蓝图广播新的等级数值！
+				OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+			}
+		);
+	}
  	
 	// 绑定核心生命、法力、大招属性的变化监听
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetTaFeiAS()->GetHealthAttribute()).AddLambda(

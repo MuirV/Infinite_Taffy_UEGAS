@@ -87,6 +87,11 @@ void ATaFeiPlayerState::AddToXP_Implementation(int32 InXP)
 	OnXPChangedDelegate.Broadcast(XP);
 }
 
+int32 ATaFeiPlayerState::GetPlayerLevel_Implementation() const
+{
+	return Level;
+}
+
 void ATaFeiPlayerState::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
 {
 	Level += InPlayerLevel;
@@ -120,6 +125,14 @@ void ATaFeiPlayerState::SetToLevel(int32 InLevel)
 {
 	Level = InLevel;
 	OnLevelChangedDelegate.Broadcast(InLevel);
+}
+
+void ATaFeiPlayerState::Die()
+{
+	// PlayerState 不应该处理死亡逻辑
+	// 这里只是占位，避免抽象类报错
+	
+	UE_LOG(LogTemp, Warning, TEXT(" PlayerState Die called (should not happen!!)"));
 }
 
 // OnRep 实现

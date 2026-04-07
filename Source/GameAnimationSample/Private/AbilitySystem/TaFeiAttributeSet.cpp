@@ -251,10 +251,11 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 				// 升级回满状态
 				SetHealth(GetMaxHealth());
 				SetMana(GetMaxMana());
+				SetUltimateEnergy(GetMaxUltimateEnergy());
      
 				ITaFeiPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
 			}
-            
+			// ★ 这里会调用 PlayerState 的 AddToXP_Implementation，它里面包含了 Broadcast
 			ITaFeiPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
 		}
 	}

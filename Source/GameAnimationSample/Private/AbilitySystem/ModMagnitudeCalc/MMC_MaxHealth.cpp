@@ -31,7 +31,7 @@ float UMMC_MaxHealth::CalculateBaseMagnitude_Implementation(const FGameplayEffec
 	GetCapturedAttributeMagnitude(VigorDef, Spec, EvaluationParameters, Vigor);
 	Vigor = FMath::Max<float>(Vigor, 0.f);
 
-	// 获取玩家/敌人等级 (通过你的 TaFei 战斗接口)
+	// 获取玩家/敌人等级 (通过你的 TaFei 战斗接口) 方便升级变化（升级后回满血）
 	int32 PlayerLevel = 1;
 	if (Spec.GetContext().GetSourceObject()->Implements<UTaFeiCombatInterface>())
 	{
