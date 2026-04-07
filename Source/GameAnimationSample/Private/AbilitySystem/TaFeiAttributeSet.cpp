@@ -292,10 +292,14 @@ void UTaFeiAttributeSet::SendXPEvent(const FEffectProperties& Props)
 		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP;
 		Payload.EventMagnitude = XPReward;
 		
-		// 取出 SourceASC 真正绑定的 OwnerActor (也就是 PlayerState)
-		AActor* XPTargetActor = Props.SourceASC ? Props.SourceASC->GetOwnerActor() : Props.SourceCharacter;
-
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(XPTargetActor, GameplayTags.Attributes_Meta_IncomingXP, Payload);
+		/// 换成下面这种直接调用 ASC 的写法：
+		if (Props.SourceASC)
+		{
+			// 直接让攻击者的 ASC 处理这个事件，百分之百不会丢失！
+			Props.SourceASC->HandleGameplayEvent(Payload.EventTag, &Payload);
+    
+			UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_1.5] 已直接向 ASC 塞入 Event ==="));
+		}
 	}
 }
 

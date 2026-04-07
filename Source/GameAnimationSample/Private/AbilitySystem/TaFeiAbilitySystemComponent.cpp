@@ -106,6 +106,22 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 {
 	if (!CharacterData) return;
 
+	// 防止重复Give（非常关键）
+	if (bStartupAbilitiesGiven) return;
+
+	// ================================
+	// CommonAbilities（所有角色都有） 这里忘记传commonabilities给playerstate，不传会导致commonAbility给不到player身上
+	// ================================
+	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterData->CommonAbilities)
+	{
+		if (!AbilityClass) continue;
+
+		FGameplayAbilitySpec Spec(AbilityClass, Level);
+		GiveAbility(Spec);
+
+		UE_LOG(LogTemp, Warning, TEXT("🔥 [COMMON_ABILITY_GIVEN] %s"), *GetNameSafe(AbilityClass));
+	}
+	
 	const FTaFeiCharacterClassDefaultInfo& ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
 
 	for (const FTaFeiAbilityInfo& AbilityInfo : ClassInfo.StartupAbilities)
