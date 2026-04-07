@@ -7,6 +7,7 @@
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "TaFeiGameplayTags.h" 
+#include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
@@ -170,7 +171,8 @@ void AEnemyBase::InitAbilityActorInfo()
 
 void AEnemyBase::InitializeDefaultAttributes() const
 {
-	
+	//这里初始化了才能让敌人获取DefaultAttributes（初始生命值等）
+	UTaFeiAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, TaFeiAbilitySystemComponent);
 }
 
 void AEnemyBase::InitializeGAS()

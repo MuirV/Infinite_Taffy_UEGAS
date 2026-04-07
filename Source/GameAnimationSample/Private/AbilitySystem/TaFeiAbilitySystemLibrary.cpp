@@ -72,6 +72,7 @@ void UTaFeiAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* Worl
 	
 	
 }
+
 void UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ETaFeiCharacterClass CharacterClass)
 {
 	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
