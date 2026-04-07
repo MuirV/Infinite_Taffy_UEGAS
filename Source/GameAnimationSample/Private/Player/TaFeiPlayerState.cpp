@@ -169,7 +169,7 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 		AddStartupAbilities();
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("GAS 灵魂注入成功！Owner: %s, Avatar: %s"), *GetName(), *AvatarPawn->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("GAS 灵魂注入成功！Owner: %s, Avatar: %s"), *GetName(), *AvatarPawn->GetName());
 	//Aura是在Character里面写的HUD注册
 	// 只有本地控制的玩家（Local Controller）才有 HUD，服务器里的怪物或其他玩家不需要建 UI
 	if (ATaFeiPlayerController* TaFeiPC = Cast<ATaFeiPlayerController>(AvatarPawn->GetController()))

@@ -184,6 +184,8 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 					// 死亡事件发送
 					CombatInterface->Die(); 
 				}
+				// 确保这个 Log 放在 SendXPEvent(Props) 附近
+				UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_1] 敌人死亡！准备发送 XP Event === 发送给目标: %s"), *Props.SourceCharacter->GetName());
 				SendXPEvent(Props);
 			}
 			else
@@ -223,6 +225,9 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	{
 		const float LocalIncomingXP = GetIncomingXP();
 		SetIncomingXP(0.f);
+
+		// 在这里打 Log
+		UE_LOG(LogTemp, Error, TEXT("=== [XP_Log_3] 玩家 AttributeSet 成功接收 IncomingXP === 准备分配经验值: %f"), LocalIncomingXP);
          
 		// 检查肉体是否同时实现了 Player 接口和 Combat 接口 (C++和蓝图实现都会返回 true!)
 		if (Props.SourceCharacter->Implements<UTaFeiPlayerInterface>() && Props.SourceCharacter->Implements<UTaFeiCombatInterface>())
