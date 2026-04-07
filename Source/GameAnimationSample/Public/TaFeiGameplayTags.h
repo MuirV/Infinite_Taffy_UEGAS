@@ -18,6 +18,9 @@ public:
 	FGameplayTag InputTag_LMB;
 	FGameplayTag InputTag_F;
 	FGameplayTag InputTag_Ultimate;
+	FGameplayTag InputTag_1;
+	FGameplayTag InputTag_2;
+	
 
 	// ---------------- 伤害标签 (Damage) ----------------
 	FGameplayTag Damage_Physical; // 物理伤害
@@ -40,9 +43,11 @@ public:
 	FGameplayTag Attributes_Vital_Health;
 	FGameplayTag Attributes_Vital_UltimateEnergy; // 大招能量
 
-	// 运动状态 Tags
+	// 状态 Tags
 	FGameplayTag State_Movement_Sprinting;
 	FGameplayTag State_Movement_Airborne;
+	FGameplayTag State_CursedMode;
+	FGameplayTag State_ReverseMode;
 	
 	// Event Tags  考虑到用Section做动画
 	FGameplayTag Event_Melee_Hit;

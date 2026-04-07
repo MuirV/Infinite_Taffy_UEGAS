@@ -17,6 +17,11 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("InputTag.Ultimate"), FString("Input Tag for Ultimate Ability"));
 
+	GameplayTags.InputTag_1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.1"), FString("Input Tag for CursedMode"));
+
+	GameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.2"), FString("Input Tag for ReverseMode"));
 	
 	/* 伤害 Tags */
 	GameplayTags.Damage_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -63,7 +68,12 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.State_Movement_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("State.Movement.Airborne"), FString("Character is in the air"));
-	
+
+	GameplayTags.State_CursedMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.CursedMode"), FString("Character is in CursedMode"));
+
+	GameplayTags.State_ReverseMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.ReverseMode"), FString("Character is in ReverseMode"));
 
 	/* Event Tags ▼ */
 	GameplayTags.Event_Melee_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(
