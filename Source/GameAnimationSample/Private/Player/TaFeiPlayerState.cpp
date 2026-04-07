@@ -113,6 +113,8 @@ void ATaFeiPlayerState::AddToSpellPoints_Implementation(int32 InSpellPoints)
 void ATaFeiPlayerState::LevelUp_Implementation()
 {
 	// 可在这里触发升级特效，交给蓝图覆写更佳
+	//TODO: 升级特效等等
+	
 }
 
 void ATaFeiPlayerState::SetXP(int32 InXP)
@@ -211,7 +213,7 @@ void ATaFeiPlayerState::InitializeAttributes()
 	// 制作一个 GE 的上下文 (Context)，记录是谁施加的这个 GE
 	FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
-	float CurrentLevel = static_cast<float>(GetPlayerLevel());
+	float CurrentLevel = static_cast<float>(Level); //这里修改GetPlayerLevel()为Level，直接从自己身上拿
 	
 	// 从字典里查出当前角色(Player)对应的专属数据包
 	FTaFeiCharacterClassDefaultInfo ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
@@ -259,7 +261,7 @@ void ATaFeiPlayerState::AddStartupAbilities()
 	// 获取 ASC 并发号施令，把所有的活儿丢给 ASC 去干
 	if (UTaFeiAbilitySystemComponent* TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent))
 	{
-		TaFeiASC->AddStartupAbilitiesFromData(CharacterData, CharacterClass, GetPlayerLevel());
+		TaFeiASC->AddStartupAbilitiesFromData(CharacterData, CharacterClass, Level);
 	}
  //    //这里完全重构了，为了减轻PlayerState的职责，我们选择AddStartupAbilitiesFromData()都写在Asc中，干脏活累活。不然以后AI都要复制一遍PlayerState的代码
  //    if (!AbilitySystemComponent || !CharacterData)
