@@ -14,14 +14,12 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	// 1. 检查 TargetActor
 	if (!TargetActor)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: TargetActor 为空！(圆没画到人)"));
 		return;
 	}
 
 	// 2. 检查 GE 类是否配置
 	if (!DamageEffectClass)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: GA蓝图里没有配置 DamageEffectClass！"));
 		return;
 	}
 	
@@ -29,7 +27,6 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (!TargetASC)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: 敌人身上或PlayerState里找不到 ASC！"));
 		return;
 	}
 
@@ -40,7 +37,6 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 
 	if (!DamageSpecHandle.IsValid())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("CauseDamage 失败: GE Spec 生成失败！"));
 		return;
 	}
 
@@ -54,14 +50,13 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, Pair.Key, ScaledDamage);
 
 		// 打印具体打包了多少伤害
-		FString Msg = FString::Printf(TEXT("成功打包伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
+		FString Msg = FString::Printf(TEXT("伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Msg);
 	}
 
 	//把打包好的伤害 GE 应用给目标
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
-
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Blue, TEXT("CauseDamage 成功执行！GE已应用给敌人！"));
+	
 }
 
 UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
