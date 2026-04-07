@@ -96,10 +96,14 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-	
 	// 初始化 GAS 信息
 	InitAbilityActorInfo();
 
+	if (HasAuthority()) //这里给予敌人初始StartupAbility 和commonAbility
+	{
+		UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(this,TaFeiAbilitySystemComponent, CharacterClass);
+	}
+	
 	// 给血条 UI 设置控制器 (敌人自己就是控制器)
 	if (UTaFeiUserWidget* TaFeiUserWidget = Cast<UTaFeiUserWidget>(HealthBar->GetUserWidgetObject()))
 	{

@@ -188,10 +188,17 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 			}
 			else
 			{
+				// 遍历并打印敌人当前所有已经学会的技能名字
+				for (const FGameplayAbilitySpec& Spec : Props.TargetASC->GetActivatableAbilities())
+				{
+					if (Spec.Ability)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("敌人已拥有技能: %s"), *Spec.Ability->GetName()));
+					}
+				}
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(FTaFeiGameplayTags::Get().Effects_HitReact);
-				// 👇 加上这一句打印，看看 Tag 是不是真的叫 "Effects.HitReact"
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("尝试激活标签: %s"), *TagContainer.ToString()));
+				
 				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 			}
 			
@@ -268,8 +275,11 @@ void UTaFeiAttributeSet::SendXPEvent(const FEffectProperties& Props)
 		FGameplayEventData Payload;
 		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP;
 		Payload.EventMagnitude = XPReward;
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceCharacter,
-			GameplayTags.Attributes_Meta_IncomingXP, Payload);
+		
+		// 取出 SourceASC 真正绑定的 OwnerActor (也就是 PlayerState)
+		AActor* XPTargetActor = Props.SourceASC ? Props.SourceASC->GetOwnerActor() : Props.SourceCharacter;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(XPTargetActor, GameplayTags.Attributes_Meta_IncomingXP, Payload);
 	}
 }
 

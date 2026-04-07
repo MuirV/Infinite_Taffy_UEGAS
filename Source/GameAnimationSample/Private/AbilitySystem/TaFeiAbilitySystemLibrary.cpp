@@ -72,33 +72,43 @@ void UTaFeiAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* Worl
 	
 	
 }
-
-void UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ETaFeiCharacterClass CharacterClass)
+void UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(
+	const UObject* WorldContextObject, 
+	UAbilitySystemComponent* ASC, 
+	ETaFeiCharacterClass CharacterClass)
 {
 	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
 	if (CharacterClassInfo == nullptr) return;
 
+	// ================================
+	//  先给 CommonAbilities（所有角色都有）
+	// ================================
+	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
+	{
+		if (!AbilityClass) continue;
+
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		ASC->GiveAbility(AbilitySpec);
+	}
+
+	// ================================
+	//  再给职业专属 StartupAbilities（你自己的结构）
+	// ================================
 	const FTaFeiCharacterClassDefaultInfo& DefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
-    
-	// --- 错误写法 (Aura 原版): ---
-	// for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultInfo.StartupAbilities) 
-    
-	// --- 正确写法 (TaFei 适配版): --- 因为我们将InputTag与GameplayAbility结合了，TaFeiAbilityInfo
+
 	for (const FTaFeiAbilityInfo& AbilityInfo : DefaultInfo.StartupAbilities)
 	{
-		if (AbilityInfo.AbilityClass)
+		if (!AbilityInfo.AbilityClass) continue;
+
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, 1);
+
+		// 注入 InputTag（TaFei核心改造点）
+		if (AbilityInfo.InputTag.IsValid())
 		{
-			// 使用 AbilityInfo.AbilityClass 成员
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, 1);
-            
-			// 如果你有输入标签，也可以在这里注入
-			if (AbilityInfo.InputTag.IsValid())
-			{
-				AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
-			}
-            
-			ASC->GiveAbility(AbilitySpec);
+			AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
 		}
+
+		ASC->GiveAbility(AbilitySpec);
 	}
 }
 
