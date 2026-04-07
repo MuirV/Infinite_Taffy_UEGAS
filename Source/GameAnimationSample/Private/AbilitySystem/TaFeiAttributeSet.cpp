@@ -190,15 +190,6 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 			}
 			else
 			{
-				// 遍历并打印敌人当前所有已经学会的技能名字
-				// for (const FGameplayAbilitySpec& Spec : Props.TargetASC->GetActivatableAbilities())
-				// {
-				// 	if (Spec.Ability)
-				// 	{
-				// 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("敌人已拥有技能: %s"), *Spec.Ability->GetName()));
-				// 	}
-				// }
-				
 				//这里用载荷，SendGameplayEventTOActor，为以后拓展HitEffect，比如击晕等等
 				FGameplayEventData Payload;
 				Payload.EventTag = FTaFeiGameplayTags::Get().Effects_HitReact;
@@ -227,7 +218,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 		SetIncomingXP(0.f);
 
 		// 在这里打 Log
-		UE_LOG(LogTemp, Error, TEXT("=== [XP_Log_3] 玩家 AttributeSet 成功接收 IncomingXP === 准备分配经验值: %f"), LocalIncomingXP);
+		UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_3] 玩家 AttributeSet 成功接收 IncomingXP === 准备分配经验值: %f"), LocalIncomingXP);
          
 		// 检查肉体是否同时实现了 Player 接口和 Combat 接口 (C++和蓝图实现都会返回 true!)
 		if (Props.SourceCharacter->Implements<UTaFeiPlayerInterface>() && Props.SourceCharacter->Implements<UTaFeiCombatInterface>())
