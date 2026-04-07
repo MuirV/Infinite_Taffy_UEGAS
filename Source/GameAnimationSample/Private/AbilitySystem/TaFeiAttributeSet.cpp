@@ -196,6 +196,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 				// 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, FString::Printf(TEXT("敌人已拥有技能: %s"), *Spec.Ability->GetName()));
 				// 	}
 				// }
+				//这里用载荷，SendGameplayEventTOActor，为以后拓展HitEffect，比如击晕等等
 				FGameplayEventData Payload;
 				Payload.EventTag = FTaFeiGameplayTags::Get().Effects_HitReact;
 				Payload.Instigator = Props.SourceAvatarActor;
