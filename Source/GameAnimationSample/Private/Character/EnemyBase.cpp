@@ -179,6 +179,12 @@ void AEnemyBase::InitializeDefaultAttributes() const
 	UTaFeiAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, TaFeiAbilitySystemComponent);
 }
 
+UAnimMontage* AEnemyBase::GetHitReactMontage_Implementation()
+{
+	
+	return HitReactMontage; //重写...并返回HitReactMontage，自由在相应角色里面配置
+}
+
 void AEnemyBase::InitializeGAS()
 {
 	if (TaFeiAbilitySystemComponent)

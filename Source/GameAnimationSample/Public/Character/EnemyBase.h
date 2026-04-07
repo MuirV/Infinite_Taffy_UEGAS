@@ -58,7 +58,7 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void InitAbilityActorInfo();
 	virtual void InitializeDefaultAttributes() const ;
-
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	// --- GAS 核心组件 ---
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
 	TObjectPtr<UTaFeiAbilitySystemComponent> TaFeiAbilitySystemComponent;
