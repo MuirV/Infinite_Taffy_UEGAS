@@ -37,8 +37,9 @@ void ATaFeiPlayerController::OnRep_PlayerState()
 	TryInitGAS();
 }
 
-void ATaFeiPlayerController::ClientShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
+void ATaFeiPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
 {
+	
 	// 安全检查：确保在本地 Controller，并且配置了类、目标没消失
 	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
 	{

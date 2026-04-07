@@ -169,8 +169,10 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
     // 判定是否暴击
     const bool bCriticalHit = FMath::RandRange(1, 100) < EffectiveCriticalHitChance;
+	
+	UE_LOG(LogTemp, Warning, TEXT("=== [GAS_Log_1] ExecCalc 计算完毕 === 最终伤害: %f | 暴击: %d"), Damage, bCriticalHit);
 
-    // 预留：如果你想让UI弹出“暴击”字样，解除下面注释并确保库函数存在
+	// 预留：如果你想让UI弹出“暴击”字样，解除下面注释并确保库函数存在
     UTaFeiAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
     
     // 流水线加工：暴击触发，基础伤害翻倍 + 额外爆伤加成

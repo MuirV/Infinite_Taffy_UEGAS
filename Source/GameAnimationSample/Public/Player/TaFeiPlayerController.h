@@ -24,7 +24,7 @@ public:
 
 	// 客户端 RPC：只在发起攻击的玩家本地机器上显示伤害飘字
 	UFUNCTION(Client, Reliable)
-	void ClientShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit);
 	
 protected:
 	// 服务器端：附身完成时调用
