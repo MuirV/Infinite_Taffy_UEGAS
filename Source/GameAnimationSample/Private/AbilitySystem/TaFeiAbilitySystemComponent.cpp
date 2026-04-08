@@ -15,7 +15,7 @@ UTaFeiAbilitySystemComponent::UTaFeiAbilitySystemComponent()
 
 void UTaFeiAbilitySystemComponent::AbilityActorInfoSet()
 {
-	// ★ 当有 GameplayEffect 应用到自己身上时，触发本类的 ClientEffectApplied 函数
+	// 当有 GameplayEffect 应用到自己身上时，触发本类的 ClientEffectApplied 函数
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UTaFeiAbilitySystemComponent::ClientEffectApplied);
 }
 
@@ -23,10 +23,10 @@ void UTaFeiAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySy
 {
 	FGameplayTagContainer TagContainer;
 	
-	// ★ 核心：把这个刚刚应用成功的 GE 里的所有 Asset Tags 提取出来
+	// 把这个刚刚应用成功的 GE 里的所有 Asset Tags 提取出来
 	EffectSpec.GetAllAssetTags(TagContainer);
 	
-	// 把拿到的 Tag 广播出去！(OverlayWidgetController 此时就在乖乖监听这个)
+	// 把拿到的 Tag 广播出去！(OverlayWidgetController 此时就在监听这个)
 	EffectAssetTags.Broadcast(TagContainer);
 }
 
@@ -127,8 +127,6 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 
 		FGameplayAbilitySpec Spec(AbilityClass, Level);
 		GiveAbility(Spec);
-
-		
 	}
 	
 	const FTaFeiCharacterClassDefaultInfo& ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
@@ -139,7 +137,7 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 
 		FGameplayAbilitySpec Spec(AbilityInfo.AbilityClass, Level);
 
-		if (AbilityInfo.InputTag.IsValid())
+		if (AbilityInfo.InputTag.IsValid() && CharacterClass == ETaFeiCharacterClass::Player)
 		{
 			Spec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
 		}

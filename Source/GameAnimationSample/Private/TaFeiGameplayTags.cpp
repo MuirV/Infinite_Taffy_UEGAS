@@ -75,11 +75,17 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.State_Movement_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("State.Movement.Airborne"), FString("Character is in the air"));
 
+	GameplayTags.State_Movement_Dodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.Movement.Dodge"), FString("Character is Dodging"));
+
 	GameplayTags.State_CursedMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("State.CursedMode"), FString("Character is in CursedMode"));
 
 	GameplayTags.State_ReverseMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("State.ReverseMode"), FString("Character is in ReverseMode"));
+
+	GameplayTags.State_Invincible = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.Invincible"), FString("Character is Invincible"));
 
 	/* Cooldown Tags */
 	GameplayTags.Cooldown_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(

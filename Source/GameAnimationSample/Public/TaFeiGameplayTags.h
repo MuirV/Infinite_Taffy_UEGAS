@@ -48,8 +48,11 @@ public:
 	// 状态 Tags
 	FGameplayTag State_Movement_Sprinting;
 	FGameplayTag State_Movement_Airborne;
+	FGameplayTag State_Movement_Dodge;
 	FGameplayTag State_CursedMode;
 	FGameplayTag State_ReverseMode;
+	
+	FGameplayTag State_Invincible;
 
 	// 冷却 CoolDown
 	FGameplayTag Cooldown_Ultimate;

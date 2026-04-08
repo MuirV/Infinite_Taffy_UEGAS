@@ -102,11 +102,11 @@ void UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(
 
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityInfo.AbilityClass, 1);
 
-		// 注入 InputTag（TaFei核心改造点）
-		if (AbilityInfo.InputTag.IsValid())
-		{
-			AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
-		}
+		// // 注入 InputTag（TaFei核心改造点） 改到ASC里面写了，此函数给敌人用。敌人获取这个函数，不需要InputTag功能
+		// if (AbilityInfo.InputTag.IsValid())
+		// {
+		// 	AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilityInfo.InputTag);
+		// }
 
 		ASC->GiveAbility(AbilitySpec);
 	}

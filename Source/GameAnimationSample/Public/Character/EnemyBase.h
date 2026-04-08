@@ -77,12 +77,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	int32 XPReward = 50;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
-	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Mob;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	TObjectPtr<UCharacterClassInfo> CharacterData;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Mob;
 	
 	// --- 插槽配置 (Socket) ---
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
@@ -111,9 +111,6 @@ protected:
 	TObjectPtr<AAIController> TaFeiAIController;
 	
 private:
-	// 辅助函数：初始化 GAS
-	void InitializeGAS();
-
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;

@@ -78,7 +78,8 @@ FVector AEnemyBase::GetCombatSocketLocation_Implementation(const FGameplayTag& M
 
 ETaFeiCharacterClass AEnemyBase::GetCharacterClass_Implementation()
 {
-	return ITaFeiCombatInterface::GetCharacterClass_Implementation();
+	// 让接口直接返回你这个类里的变量，这样在蓝图里选 Mob，才会返回 Mob
+	return CharacterClass;
 }
 
 void AEnemyBase::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
@@ -99,10 +100,11 @@ void AEnemyBase::BeginPlay()
 	// 初始化 GAS 信息
 	InitAbilityActorInfo();
 
-	if (HasAuthority()) //这里给予敌人初始StartupAbility 和commonAbility
-	{
-		UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(this,TaFeiAbilitySystemComponent, CharacterClass);
-	}
+	UE_LOG(LogTemp, Error, TEXT("Enemy BeginPlay Class = %d"), (int32)CharacterClass);
+	// if (HasAuthority()) 这里重复
+	// {
+	// 	UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(this,TaFeiAbilitySystemComponent, CharacterClass);
+	// }
 	
 	// 给血条 UI 设置控制器 (敌人自己就是控制器)
 	if (UTaFeiUserWidget* TaFeiUserWidget = Cast<UTaFeiUserWidget>(HealthBar->GetUserWidgetObject()))
@@ -139,27 +141,12 @@ void AEnemyBase::PossessedBy(AController* NewController)
 	
 	if (!HasAuthority()) return; //PossessedBy本来就只在服务器运行，加上这个判断略显冗余
 	
-	// AI 只有在服务器端被 Controller 附身时才初始化 GAS
-	if (HasAuthority())
-	{
-		InitializeGAS();
-	}
-
-	// if (!HasAuthority()) return;
-	//
-	// TaFeiAIController = Cast<AAIController>(NewController);
-	// if (TaFeiAIController && BehaviorTree)
-	// {
-	// 	TaFeiAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
-	// 	TaFeiAIController->RunBehaviorTree(BehaviorTree);
-	// 	TaFeiAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
-	// 	// 判断是否是远程攻击者，写入黑板
-	// 	TaFeiAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ETaFeiCharacterClass::Warrior);
-	// }
 }
 
 void AEnemyBase::InitAbilityActorInfo()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Init GAS: %s"), *GetName());
+
 	// 对于敌人：Owner 和 Avatar 都是自己！
 	TaFeiAbilitySystemComponent->InitAbilityActorInfo(this, this);
 	TaFeiAbilitySystemComponent->AbilityActorInfoSet();
@@ -168,7 +155,7 @@ void AEnemyBase::InitAbilityActorInfo()
 	{
 		InitializeDefaultAttributes();
 		
-		// ★ 直接复用我们上次写在 ASC 里的完美函数！极度优雅！
+		//  直接复用我们上次写在 ASC 里的完美函数
 		TaFeiAbilitySystemComponent->AddStartupAbilitiesFromData(CharacterData, CharacterClass, Level);
 	}
 }
@@ -185,28 +172,6 @@ UAnimMontage* AEnemyBase::GetHitReactMontage_Implementation()
 	return HitReactMontage; //重写...并返回HitReactMontage，自由在相应角色里面配置
 }
 
-void AEnemyBase::InitializeGAS()
-{
-	if (TaFeiAbilitySystemComponent)
-	{
-		// 对于敌人，灵魂(Owner)和肉体(Avatar)都是它自己
-		TaFeiAbilitySystemComponent->InitAbilityActorInfo(this, this);
-		
-		// 应用初始属性 GE
-		if (HasAuthority() && DefaultAttributes)
-		{
-			FGameplayEffectContextHandle ContextHandle = TaFeiAbilitySystemComponent->MakeEffectContext();
-			ContextHandle.AddSourceObject(this);
-			FGameplayEffectSpecHandle SpecHandle = TaFeiAbilitySystemComponent->MakeOutgoingSpec(DefaultAttributes, ITaFeiCombatInterface::Execute_GetPlayerLevel(this), ContextHandle);
-			
-			if (SpecHandle.IsValid())
-			{
-				TaFeiAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-			}
-		}
-	}
-}
-
 void AEnemyBase::HitReact_Implementation()
 {
 	// 留给蓝图实现：播放受击蒙太奇或特效
@@ -218,5 +183,12 @@ void AEnemyBase::Die_Implementation()
 {
 	// 留给蓝图实现：布娃娃系统、掉落物、死亡特效等
 	SetLifeSpan(LifeSpan);
+	
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 }

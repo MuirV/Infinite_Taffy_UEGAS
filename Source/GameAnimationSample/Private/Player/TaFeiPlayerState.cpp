@@ -160,6 +160,11 @@ UAbilitySystemComponent* ATaFeiPlayerState::GetAbilitySystemComponent() const
 
 void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 {
+	
+	if (!AvatarPawn->IsPlayerControlled())
+	{
+		return; // ❗关键：阻止敌人进入
+	}
 
 	// 如果已经初始化过，或者组件/Pawn无效，直接退出
 	if (bGASInitialized || !AbilitySystemComponent || !AvatarPawn) return;
