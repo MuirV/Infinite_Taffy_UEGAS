@@ -32,9 +32,13 @@ void UTaFeiAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySy
 
 void UTaFeiAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
-	if (GetAvatarActor()->Implements<UTaFeiPlayerInterface>())
+	// ASC 的 Owner 就是我们的 TaFeiPlayerState
+	AActor* OwningActor = GetOwnerActor();
+
+	if (OwningActor && OwningActor->Implements<UTaFeiPlayerInterface>())
 	{
-		if (ITaFeiPlayerInterface::Execute_GetAttributePoints(GetAvatarActor()) > 0)
+		// 从PlayerState获取 你有属性点吗？
+		if (ITaFeiPlayerInterface::Execute_GetAttributePoints(OwningActor) > 0)
 		{
 			ServerUpdateAttribute(AttributeTag);
 		}
@@ -48,11 +52,16 @@ void UTaFeiAbilitySystemComponent::ServerUpdateAttribute_Implementation(const FG
 	Payload.EventTag = AttributeTag;
 	Payload.EventMagnitude = 1.f;
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag, Payload);
 
-	if (GetAvatarActor()->Implements<UTaFeiPlayerInterface>())
+	// 改名：使用 OwningActor 避免和父类成员变量重名  源码底层UAbilitySystemComponent已经定义了OwnerActor，所以命名为OwningActor
+	AActor* OwningActor = GetOwnerActor();
+	
+	// 发送事件触发 GA (通过PS找到 ASC，获得Strength，Vigor等加点) 这里换成OwningActor
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwningActor, AttributeTag, Payload);
+	if (OwningActor && OwningActor->Implements<UTaFeiPlayerInterface>())
 	{
-		ITaFeiPlayerInterface::Execute_AddToAttributePoints(GetAvatarActor(), -1);
+		// 让灵魂扣除 1 个属性点！
+		ITaFeiPlayerInterface::Execute_AddToAttributePoints(OwningActor, -1);
 	}
 	
 }
