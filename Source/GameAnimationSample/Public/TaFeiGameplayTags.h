@@ -20,6 +20,8 @@ public:
 	FGameplayTag InputTag_Ultimate;
 	FGameplayTag InputTag_1;
 	FGameplayTag InputTag_2;
+	FGameplayTag InputTag_Shift;
+	FGameplayTag InputTag_Q;
 	
 
 	// ---------------- 伤害标签 (Damage) ----------------
@@ -48,6 +50,12 @@ public:
 	FGameplayTag State_Movement_Airborne;
 	FGameplayTag State_CursedMode;
 	FGameplayTag State_ReverseMode;
+
+	// 冷却 CoolDown
+	FGameplayTag Cooldown_Ultimate;
+	FGameplayTag Cooldown_Dodge;
+	FGameplayTag Cooldown_CursedMode;
+	FGameplayTag Cooldown_ReverseMode;
 	
 	// Event Tags  考虑到用Section做动画
 	FGameplayTag Event_Melee_Hit;

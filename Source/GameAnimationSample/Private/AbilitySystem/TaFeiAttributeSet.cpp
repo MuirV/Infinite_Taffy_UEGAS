@@ -252,12 +252,8 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	            ITaFeiPlayerInterface::Execute_AddToAttributePoints(TaFeiPS, AttributePointsReward);
 	            ITaFeiPlayerInterface::Execute_AddToSpellPoints(TaFeiPS, SpellPointsReward);
 
-	            // 升级回满状态
-	            SetHealth(GetMaxHealth());
-	            SetMana(GetMaxMana());
-	            SetUltimateEnergy(GetMaxUltimateEnergy());
-
-	            // 告诉 TaFeiPlayerState 触发升级
+	            
+	            // 告诉 TaFeiPlayerState 触发升级  升级回满状态
 	            ITaFeiPlayerInterface::Execute_LevelUp(TaFeiPS);
 	        }
 	        

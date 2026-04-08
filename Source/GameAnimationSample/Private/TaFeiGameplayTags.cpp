@@ -22,6 +22,12 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.InputTag_2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("InputTag.2"), FString("Input Tag for ReverseMode"));
+
+	GameplayTags.InputTag_Shift = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Shift"), FString("Input Tag for Dodge?"));
+
+	GameplayTags.InputTag_Q = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Q"), FString("Input Tag for Dodge"));
 	
 	/* 伤害 Tags */
 	GameplayTags.Damage_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -75,6 +81,19 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.State_ReverseMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("State.ReverseMode"), FString("Character is in ReverseMode"));
 
+	/* Cooldown Tags */
+	GameplayTags.Cooldown_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Ultimate"), FString("Ultimate Cooldown"));
+
+	GameplayTags.Cooldown_Dodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Dodge"), FString("Dodge Cooldown"));
+
+	GameplayTags.Cooldown_CursedMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.CursedMode"), FString("Cursed Cooldown"));
+
+	GameplayTags.Cooldown_ReverseMode = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.ReverseMode"), FString("Reverse Cooldown"));
+	
 	/* Event Tags ▼ */
 	GameplayTags.Event_Melee_Hit = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	   FName("Event.Melee.Hit"), FString("Event triggered when melee attack hits"));
