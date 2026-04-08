@@ -65,7 +65,10 @@ public:
 	FGameplayTag Event_Combo_WindowOpen;
 	FGameplayTag Event_Combo_WindowClosed;
 	FGameplayTag Event_Ultimate_Release;    // 松开按键，释放大招事件 后续拓展能根据蓄力时间增加伤害(有最大上限2s达到最大)，且大招本身能够破防敌人
+	FGameplayTag Event_CursedMode_AllowClose;
+	FGameplayTag Event_ReverseMode_AllowClose;
 
+	
 	// UI层面 角色属性反映 搬迁自Aura代码  不过是依葫芦画瓢而已
 	// Primary Attributes
 	FGameplayTag Attributes_Primary_Strength;

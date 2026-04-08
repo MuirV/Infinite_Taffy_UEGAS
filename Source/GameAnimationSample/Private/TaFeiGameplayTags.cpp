@@ -113,6 +113,12 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Ultimate_Release = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	   FName("Event.Ultimate.Release"), FString("Event triggered when the ultimate key is released"));
 
+	GameplayTags.Event_CursedMode_AllowClose = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	   FName("Event.CursedMode.AllowClose"), FString("Event that allow us close CursedMode"));
+
+	GameplayTags.Event_ReverseMode_AllowClose = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	   FName("Event.ReverseMode.AllowClose"), FString("Event that allow us close ReverseMode"));
+	
 	// UI 层面
 	// ---------------- Primary Attributes ----------------
 
