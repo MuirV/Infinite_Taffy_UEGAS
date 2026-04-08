@@ -15,6 +15,7 @@
 
 
 #include "Player/TaFeiPlayerController.h"
+#include "Player/TaFeiPlayerState.h"
 
 UTaFeiAttributeSet::UTaFeiAttributeSet()
 {
@@ -214,43 +215,57 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
 	{
-		const float LocalIncomingXP = GetIncomingXP();
-		SetIncomingXP(0.f);
+	    const float LocalIncomingXP = GetIncomingXP();
+	    SetIncomingXP(0.f);
 
-		// 在这里打 Log
-		UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_3] 玩家 AttributeSet 成功接收 IncomingXP === 准备分配经验值: %f"), LocalIncomingXP);
-         
-		// 检查肉体是否同时实现了 Player 接口和 Combat 接口 (C++和蓝图实现都会返回 true!)
-		if (Props.SourceCharacter->Implements<UTaFeiPlayerInterface>() && Props.SourceCharacter->Implements<UTaFeiCombatInterface>())
-		{
-			// 这些 Execute_ 函数会自动调用你 BP_SandboxCharacter 里的蓝图节点！
-			const int32 CurrentLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(Props.SourceCharacter);
-			const int32 CurrentXP = ITaFeiPlayerInterface::Execute_GetXP(Props.SourceCharacter);
-     
-			const int32 NewLevel = ITaFeiPlayerInterface::Execute_FindLevelForXP(Props.SourceCharacter, CurrentXP + LocalIncomingXP);
-			const int32 NumLevelUps = NewLevel - CurrentLevel;
-			if (NumLevelUps > 0)
-			{
-				//  注意：这里务必确保你的接口头文件里名字改成了 Reward，否则会编译报错
-				const int32 AttributePointsReward = ITaFeiPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-				const int32 SpellPointsReward = ITaFeiPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
-     
-				ITaFeiPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumLevelUps);
-				ITaFeiPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
-				ITaFeiPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
-               
-				// 升级回满状态
-				SetHealth(GetMaxHealth());
-				SetMana(GetMaxMana());
-				SetUltimateEnergy(GetMaxUltimateEnergy());
-     
-				ITaFeiPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
-			}
-			// ★ 这里会调用 PlayerState 的 AddToXP_Implementation，它里面包含了 Broadcast
-			ITaFeiPlayerInterface::Execute_AddToXP(Props.SourceCharacter, LocalIncomingXP);
-		}
+	    UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_3] 玩家 AttributeSet 成功接收 IncomingXP === 准备分配经验值: %f"), LocalIncomingXP);
+
+	    // 精准获取施法者的专属 TaFeiPlayerState
+	    ATaFeiPlayerState* TaFeiPS = nullptr;
+	    if (Props.SourceController)
+	    {
+	        // 从 Controller 身上拿并强转
+	        TaFeiPS = Cast<ATaFeiPlayerState>(Props.SourceController->PlayerState);
+	    }
+	    if (!TaFeiPS && Props.SourceASC)
+	    {
+	        // 兜底：从 ASC 的 Owner 身上拿并强转
+	        TaFeiPS = Cast<ATaFeiPlayerState>(Props.SourceASC->GetOwnerActor());
+	    }
+
+	    //  只有当确实是 TaFeiPlayerState 时，才进行所有的接口调用！
+	    if (TaFeiPS && TaFeiPS->Implements<UTaFeiPlayerInterface>() && TaFeiPS->Implements<UTaFeiCombatInterface>())
+	    {
+	        // 这里的调用将毫无疑问地走入 TaFeiPlayerState.cpp
+	        const int32 CurrentLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(TaFeiPS);
+	        const int32 CurrentXP = ITaFeiPlayerInterface::Execute_GetXP(TaFeiPS);
+
+	        const int32 NewLevel = ITaFeiPlayerInterface::Execute_FindLevelForXP(TaFeiPS, CurrentXP + LocalIncomingXP);
+	        const int32 NumLevelUps = NewLevel - CurrentLevel;
+	        
+	        if (NumLevelUps > 0)
+	        {
+	            const int32 AttributePointsReward = ITaFeiPlayerInterface::Execute_GetAttributePointsReward(TaFeiPS, CurrentLevel);
+	            const int32 SpellPointsReward = ITaFeiPlayerInterface::Execute_GetSpellPointsReward(TaFeiPS, CurrentLevel);
+
+	            ITaFeiPlayerInterface::Execute_AddToPlayerLevel(TaFeiPS, NumLevelUps);
+	            ITaFeiPlayerInterface::Execute_AddToAttributePoints(TaFeiPS, AttributePointsReward);
+	            ITaFeiPlayerInterface::Execute_AddToSpellPoints(TaFeiPS, SpellPointsReward);
+
+	            // 升级回满状态
+	            SetHealth(GetMaxHealth());
+	            SetMana(GetMaxMana());
+	            SetUltimateEnergy(GetMaxUltimateEnergy());
+
+	            // 告诉 TaFeiPlayerState 触发升级
+	            ITaFeiPlayerInterface::Execute_LevelUp(TaFeiPS);
+	        }
+	        
+	        // 增加经验值
+	        ITaFeiPlayerInterface::Execute_AddToXP(TaFeiPS, LocalIncomingXP);
+	    }
 	}
-	
+		
 }
 
 
