@@ -176,12 +176,18 @@ void UTaFeiAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& 
 
 bool UTaFeiAbilitySystemLibrary::IsPerfectDodge(const FGameplayEffectContextHandle& EffectContextHandle)
 {
-	if (const FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext =
-		static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	// 获取基础 Context
+	const FGameplayEffectContext* BaseContext = EffectContextHandle.Get();
+
+	// 只有当指针有效，且类型完全匹配时才进行逻辑判断
+	if (BaseContext && BaseContext->GetScriptStruct() == FTaFeiGameplayEffectContext::StaticStruct())
 	{
-		return TaFeiGameplayEffectContext->IsPerfectDodge();
+		// 既然已经验证了结构体类型，这里的 static_cast 就是绝对安全的
+		const FTaFeiGameplayEffectContext* TaFeiContext = static_cast<const FTaFeiGameplayEffectContext*>(BaseContext);
+		return TaFeiContext->IsPerfectDodge();
 	}
 
+	//默认不触发完美闪避
 	return false;
 }
 

@@ -133,14 +133,16 @@ void UTaFeiAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackDat
 			Props.SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
 		}
 	}
+
 	
-	if(Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
-	{	
-		Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
-		Props.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get();
+	Props.TargetASC = &Data.Target; //修复完美闪避崩溃问题
+	
+	if(Props.TargetASC->AbilityActorInfo.IsValid() && Props.TargetASC->AbilityActorInfo->AvatarActor.IsValid())
+	{  
+		Props.TargetAvatarActor = Props.TargetASC->AbilityActorInfo->AvatarActor.Get();
+		Props.TargetController = Props.TargetASC->AbilityActorInfo->PlayerController.Get();
 		Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
-		Props.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetAvatarActor);
-	}		
+	}	
 }
 
 void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -171,7 +173,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f); // 用完清零
 
-		//拦截并处理完美闪避
+		//拦截并处理完美闪避 现在 TargetASC 保证不为空了
 		if (UTaFeiAbilitySystemLibrary::IsPerfectDodge(Props.EffectContextHandle))
 		{
 			// 播放 GameplayCue (音效、子弹时间特效等)
@@ -210,7 +212,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 				}
 				// 确保这个 Log 放在 SendXPEvent(Props) 附近
 				UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_1] 敌人死亡！准备发送 XP Event === 发送给目标: %s"), *Props.SourceCharacter->GetName());
-				SendXPEvent(Props);
+				if (Props.SourceCharacter) SendXPEvent(Props);
 			}
 			else
 			{
@@ -282,7 +284,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	        		for (FGameplayAbilitySpec& Spec : TaFeiASC->GetActivatableAbilities())
 	        		{
 	        			Spec.Level = NewLevel; 
-	        			// 标记数据已脏，确保网络同步给客户端
+	        			// 标记数据已脏，设计网络同步(确保网络同步给客户端)
 	        			TaFeiASC->MarkAbilitySpecDirty(Spec); 
 	        		}
 	        		
@@ -332,10 +334,9 @@ void UTaFeiAttributeSet::SendXPEvent(const FEffectProperties& Props)
 		/// 换成下面这种直接调用 ASC 的写法：
 		if (Props.SourceASC)
 		{
-			// 直接让攻击者的 ASC 处理这个事件，百分之百不会丢失！
+			// 直接让攻击者的 ASC 处理这个事件
 			Props.SourceASC->HandleGameplayEvent(Payload.EventTag, &Payload);
-    
-			UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_1.5] 已直接向 ASC 塞入 Event ==="));
+			
 		}
 	}
 }

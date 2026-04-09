@@ -195,7 +195,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	{
 		Damage = 0.f; // 无敌状态，伤害归零
         
-		// 如果此刻正在闪避，那就是完美闪避！
+		// 如果此刻正在闪避，那就是完美闪避
 		if (bTargetIsDodging)
 		{
 			UTaFeiAbilitySystemLibrary::SetIsPerfectDodge(EffectContextHandle, true);
