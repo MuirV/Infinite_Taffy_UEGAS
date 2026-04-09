@@ -67,7 +67,7 @@ public:
 	FGameplayTag Event_Ultimate_Release;    // 松开按键，释放大招事件 后续拓展能根据蓄力时间增加伤害(有最大上限2s达到最大)，且大招本身能够破防敌人
 	FGameplayTag Event_CursedMode_AllowClose;
 	FGameplayTag Event_ReverseMode_AllowClose;
-	FGameplayTag Event_Combat_PerfectDodge;       // 完美闪避事件通知
+	FGameplayTag Event_Combat_PerfectDodge;       // 完美闪避事件通知 
 
 	// Gameplay Cue Tags
 	FGameplayTag GameplayCue_Combat_PerfectDodge; // 完美闪避特效与音效
