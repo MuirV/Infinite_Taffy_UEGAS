@@ -119,6 +119,13 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_ReverseMode_AllowClose = UGameplayTagsManager::Get().AddNativeGameplayTag(
 	   FName("Event.ReverseMode.AllowClose"), FString("Event that allow us close ReverseMode"));
 	
+	GameplayTags.Event_Combat_PerfectDodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Combat.PerfectDodge"), FString("Event triggered upon a successful perfect dodge"));
+
+	/* Gameplay Cue */ 
+	GameplayTags.GameplayCue_Combat_PerfectDodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Combat.PerfectDodge"), FString("Play perfect dodge sound and visual"));
+        
 	// UI 层面
 	// ---------------- Primary Attributes ----------------
 

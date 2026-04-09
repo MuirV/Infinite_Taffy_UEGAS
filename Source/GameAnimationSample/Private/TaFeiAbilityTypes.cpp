@@ -40,11 +40,13 @@ bool FTaFeiGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* 
 		if (bIsBlockedHit) { RepBits |= 1 << 7; }
 		if (bIsCriticalHit) { RepBits |= 1 << 8; }
 		
-		// 未来你加了击退力、伤害类型等，就继续 1 << 9, 1 << 10 往下排
+		// 未来加了击退力、伤害类型等，就继续 1 << 9, 1 << 10 往下排
+		if (bIsPerfectDodge) { RepBits |= 1 << 9; } // 新增第 10 位 (索引为 9)
+		
 	}
 
-	// 告诉网络序列化器：我们只打包前 9 位数据
-	Ar.SerializeBits(&RepBits, 9);
+	// 告诉网络序列化器：我们只打包前 10 位数据
+	Ar.SerializeBits(&RepBits, 10);
 
 	// ----------------- 数据解包 / 映射 -----------------
 	// 基础数据映射
@@ -71,9 +73,10 @@ bool FTaFeiGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* 
 		bHasWorldOrigin = false;
 	}
 
-	// TaFei 自定义数据映射
+	// TaFei 自定义数据映射  解包部分
 	if (RepBits & (1 << 7)) { Ar << bIsBlockedHit; }
 	if (RepBits & (1 << 8)) { Ar << bIsCriticalHit; }
+	if (RepBits & (1 << 9)) { Ar << bIsPerfectDodge; }
 
 	if (Ar.IsLoading())
 	{

@@ -31,7 +31,7 @@ public:
 	// 连招系统
 	FGameplayTag Abilities_Attack_ComboLMB;   // 连续左键
 	FGameplayTag Abilities_Attack_ComboF;   // 连续 F 键
-	FGameplayTag Abilities_Attack_ComboMixed; // 派生连招：左键1下 -> F键2下
+	FGameplayTag Abilities_Attack_ComboMixed; // 派生连招
 	// 大招
 	FGameplayTag Abilities_Ultimate;          // 大招释放
 	
@@ -67,6 +67,11 @@ public:
 	FGameplayTag Event_Ultimate_Release;    // 松开按键，释放大招事件 后续拓展能根据蓄力时间增加伤害(有最大上限2s达到最大)，且大招本身能够破防敌人
 	FGameplayTag Event_CursedMode_AllowClose;
 	FGameplayTag Event_ReverseMode_AllowClose;
+	FGameplayTag Event_Combat_PerfectDodge;       // 完美闪避事件通知
+
+	// Gameplay Cue Tags
+	FGameplayTag GameplayCue_Combat_PerfectDodge; // 完美闪避特效与音效
+	
 
 	
 	// UI层面 角色属性反映 搬迁自Aura代码  不过是依葫芦画瓢而已
