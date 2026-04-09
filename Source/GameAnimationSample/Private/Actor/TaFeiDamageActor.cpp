@@ -14,18 +14,18 @@ ATaFeiDamageActor::ATaFeiDamageActor()
 
 void ATaFeiDamageActor::OnOverlap(AActor* TargetActor)
 {
-    ApplyDamageToTarget(TargetActor);
+    ApplyBurning(TargetActor);
 }
 
-void ATaFeiDamageActor::ApplyDamageToTarget(AActor* TargetActor)
+void ATaFeiDamageActor::OnEndOverlap(AActor* TargetActor)
 {
-    // 安全检查
-    if (!TargetActor || !DamageEffectClass || !DamageTypeTag.IsValid()) return;
-    
-    // 阵营检测
-    if (TargetActor->ActorHasTag(FName("Enemy")) && !bApplyDamageToEnemies) return;
+    RemoveBurning(TargetActor);
+}
 
-    // 尝试获取目标的 ASC (保留了你的兜底逻辑)
+void ATaFeiDamageActor::ApplyBurning(AActor* TargetActor)
+{
+    if (!TargetActor || !DamageEffectClass || !DamageTypeTag.IsValid()) return;
+
     UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
     if (!TargetASC) 
     {
@@ -37,39 +37,52 @@ void ATaFeiDamageActor::ApplyDamageToTarget(AActor* TargetActor)
             }
         }
     }
-    
+
     if (!TargetASC) return;
 
-    // 创建 Context
+    // 避免重复上同一个 GE
+    if (ActiveEffects.Contains(TargetASC)) return;
+
     FGameplayEffectContextHandle ContextHandle = TargetASC->MakeEffectContext();
-    ContextHandle.AddSourceObject(this); // 将陷阱本身设为伤害来源
-    
-    FTaFeiGameplayEffectContext* TaFeiContext =static_cast<FTaFeiGameplayEffectContext*>(ContextHandle.Get());
+    ContextHandle.AddSourceObject(this);
 
-    if (TaFeiContext)
-    {
-        TaFeiContext->SetIsPerfectDodge(false); // 初始化
-    }
-
-    // 创建 Spec
-    // 创建 Spec (使用配置的 TrapLevel)
     FGameplayEffectSpecHandle SpecHandle = TargetASC->MakeOutgoingSpec(DamageEffectClass, TrapLevel, ContextHandle);
 
     if (SpecHandle.IsValid())
     {
-        // =========================================================================================
-        // 核心区别：将基础伤害和 Tag 打包进 Spec 的 SetByCaller 里
-        // 这样 ExecCalc_Damage 里面的 Spec.GetSetByCallerMagnitude 就能完美提取到这个数值了。
-        // =========================================================================================
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, DamageTypeTag, BaseDamage);
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
+            SpecHandle, DamageTypeTag, BaseDamage);
 
-        //  应用效果
-        TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+        FActiveGameplayEffectHandle Handle =
+            TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
 
-        // 判断是否销毁
-        if (bDestroyOnDamage)
+        //  记录
+        ActiveEffects.Add(TargetASC, Handle);
+    }
+}
+
+void ATaFeiDamageActor::RemoveBurning(AActor* TargetActor)
+{
+    if (!TargetActor) return;
+
+    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+
+    if (!TargetASC)
+    {
+        if (APawn* TargetPawn = Cast<APawn>(TargetActor))
         {
-            Destroy();
+            if (APlayerState* PS = TargetPawn->GetPlayerState())
+            {
+                TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
+            }
         }
+    }
+
+    if (!TargetASC) return;
+
+    if (ActiveEffects.Contains(TargetASC))
+    {
+        TargetASC->RemoveActiveGameplayEffect(ActiveEffects[TargetASC]);
+        ActiveEffects.Remove(TargetASC);
     }
 }

@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ActiveGameplayEffectHandle.h"
 #include "GameFramework/Actor.h"
 #include "GameplayTagContainer.h"
 #include "TaFeiDamageActor.generated.h"
 
+class UAbilitySystemComponent;
 class UGameplayEffect;
 
 /**
@@ -25,9 +27,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
 	void OnOverlap(AActor* TargetActor);
 
+	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
+	void OnEndOverlap(AActor* TargetActor);
+	
 	// 造成伤害的核心逻辑
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
-	void ApplyDamageToTarget(AActor* TargetActor);
+	void ApplyBurning(AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
+	void RemoveBurning(AActor* TargetActor);
 
 	// ==================== 伤害配置 ====================
     
@@ -56,4 +64,8 @@ protected:
 	// 陷阱是否对敌人也造成伤害
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	bool bApplyDamageToEnemies = false;
+
+	// 当前正在被燃烧的目标
+	UPROPERTY()
+	TMap<UAbilitySystemComponent*, FActiveGameplayEffectHandle> ActiveEffects;
 };
