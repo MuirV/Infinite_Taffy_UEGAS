@@ -55,7 +55,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Msg);
 	}
 
-	if (GetAvatarActorFromActorInfo()->HasAuthority()) //修复暴击、防御飘字两次（普通伤害也一起出现的bug）
+	if (GetAvatarActorFromActorInfo()->HasAuthority()) 
 	{
 		// 现在 TargetASC 已经定义，可以正常解析了
 		GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
