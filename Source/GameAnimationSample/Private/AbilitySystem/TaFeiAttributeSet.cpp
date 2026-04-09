@@ -9,6 +9,7 @@
 // 引入你的标签和接口，请确保包含路径正确
 #include "TaFeiAbilityTypes.h"
 #include "TaFeiGameplayTags.h" 
+#include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
 #include "Interaction/TaFeiCombatInterface.h"
 #include "Interaction/TaFeiPlayerInterface.h"
@@ -252,7 +253,18 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	            ITaFeiPlayerInterface::Execute_AddToAttributePoints(TaFeiPS, AttributePointsReward);
 	            ITaFeiPlayerInterface::Execute_AddToSpellPoints(TaFeiPS, SpellPointsReward);
 
-	            
+	        	//升级后更新我们的StartupAbilities GA，更新Level等级，去CT_Damage查表
+	        	if (UTaFeiAbilitySystemComponent* TaFeiASC = Cast<UTaFeiAbilitySystemComponent>(Props.SourceASC))
+	        	{
+	        		// 升级后，遍历所有已赋予的技能，将它们的 Level 提升到新等级
+	        		for (FGameplayAbilitySpec& Spec : TaFeiASC->GetActivatableAbilities())
+	        		{
+	        			Spec.Level = NewLevel; 
+	        			// 标记数据已脏，确保网络同步给客户端
+	        			TaFeiASC->MarkAbilitySpecDirty(Spec); 
+	        		}
+	        		
+	        	}
 	            // 告诉 TaFeiPlayerState 触发升级  升级回满状态
 	            ITaFeiPlayerInterface::Execute_LevelUp(TaFeiPS);
 	        }

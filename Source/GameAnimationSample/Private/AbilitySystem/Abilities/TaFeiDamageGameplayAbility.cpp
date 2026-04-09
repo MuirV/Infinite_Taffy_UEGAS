@@ -43,7 +43,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	//遍历我们配置的所有伤害类型 (比如这个技能既有物理伤害又有魔法伤害)
 	for (const TTuple<FGameplayTag, FScalableFloat>& Pair : DamageTypes)
 	{
-		// 核心一步：拿着当前的技能等级，去 CurveTable 里查对应的数值！
+		// 根据当前的技能等级，去 CurveTable 里查对应的数值
 		const float ScaledDamage = Pair.Value.GetValueAtLevel(CurrentLevel);
 		
 		// 通过 SetByCaller 把查出来的伤害数值“打包”进 GE 里，贴上对应的 Tag 标签
@@ -51,7 +51,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 
 	
 		// 打印具体打包了多少伤害
-		FString Msg = FString::Printf(TEXT("伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
+		FString Msg = FString::Printf(TEXT("计算前技能基础伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
 		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Msg);
 	}
 
