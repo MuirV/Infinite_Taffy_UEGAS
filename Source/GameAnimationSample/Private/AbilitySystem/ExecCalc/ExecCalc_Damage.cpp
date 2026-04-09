@@ -185,14 +185,30 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     
     Damage = bCriticalHit ? (2.f * Damage + SourceCriticalHitDamage) : Damage;
 
-    // ！！！一定要在所有加减乘除全部算完之后，再打印这个最终伤害！！！
-    UE_LOG(LogTemp, Warning, TEXT("=== [GAS_Log_Final] ExecCalc 计算完毕 === 最终输出伤害: %f | 暴击: %d | 格挡: %d"), Damage, bCriticalHit, bBlocked);
+	// =========================================================================
+	// 结算 无敌帧 与 完美闪避判定
+	// =========================================================================
+	bool bTargetIsInvincible = EvaluationParameters.TargetTags && EvaluationParameters.TargetTags->HasTagExact(FTaFeiGameplayTags::Get().State_Invincible);
+	bool bTargetIsDodging = EvaluationParameters.TargetTags && EvaluationParameters.TargetTags->HasTagExact(FTaFeiGameplayTags::Get().State_Movement_Dodge);
 
-    // =========================================================================
-    // 输出最终结果
-    // =========================================================================
-    if (Damage > 0.f)
-    {
-       OutExecutionModifiers.AddOutputModifier(FGameplayModifierEvaluatedData(UTaFeiAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage));
-    }
+	if (bTargetIsInvincible)
+	{
+		Damage = 0.f; // 无敌状态，伤害归零
+        
+		// 如果此刻正在闪避，那就是完美闪避！
+		if (bTargetIsDodging)
+		{
+			UTaFeiAbilitySystemLibrary::SetIsPerfectDodge(EffectContextHandle, true);
+		}
+	}
+
+	// =========================================================================
+	// 输出最终结果
+	// =========================================================================
+	// 即使 Damage 是 0，如果是完美闪避，我们也必须输出这个 0 伤害修改器！
+	// 否则 PostGameplayEffectExecute 不会触发，我们就截获不到这个事件了。
+	if (Damage > 0.f || UTaFeiAbilitySystemLibrary::IsPerfectDodge(EffectContextHandle))
+	{
+		OutExecutionModifiers.AddOutputModifier(FGameplayModifierEvaluatedData(UTaFeiAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage));
+	}
 }

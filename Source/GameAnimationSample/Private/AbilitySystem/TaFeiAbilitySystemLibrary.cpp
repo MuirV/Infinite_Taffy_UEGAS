@@ -174,7 +174,27 @@ void UTaFeiAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& 
 	}
 }
 
+bool UTaFeiAbilitySystemLibrary::IsPerfectDodge(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext =
+		static_cast<const FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return TaFeiGameplayEffectContext->IsPerfectDodge();
+	}
 
+	return false;
+}
+
+void UTaFeiAbilitySystemLibrary::SetIsPerfectDodge(
+	FGameplayEffectContextHandle& EffectContextHandle,
+	bool bInIsPerfectDodge)
+{
+	if (FTaFeiGameplayEffectContext* TaFeiGameplayEffectContext =
+		static_cast<FTaFeiGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		TaFeiGameplayEffectContext->SetIsPerfectDodge(bInIsPerfectDodge);
+	}
+}
 
 // 阵营判断：依赖 GameplayTags 甚至普通的 ActorTags (这里使用标准的 ActorTags 示例)
 bool UTaFeiAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondActor)

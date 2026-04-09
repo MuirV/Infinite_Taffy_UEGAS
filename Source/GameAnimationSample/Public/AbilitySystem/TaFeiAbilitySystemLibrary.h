@@ -50,6 +50,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|GameplayEffects")
 	static void SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit);
 
+	UFUNCTION(BlueprintPure, Category = "AuraAbilitySystemLibrary|GameplayEffects")
+	static bool IsPerfectDodge(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|GameplayEffects")
+	static void SetIsPerfectDodge(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsPerfectDodge);
 	// ================= 战斗与阵营工具 =================
 	
 	// 判断两个 Actor 是否为敌对关系 (通过 Tag 区分 Player 和 Enemy)

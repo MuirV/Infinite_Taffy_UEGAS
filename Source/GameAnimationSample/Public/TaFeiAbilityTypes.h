@@ -18,13 +18,15 @@ public:
 	// 预留的未来战斗属性：是否暴击，是否被格挡（以后可以随意添加，比如添加击退力 FVector KnockbackForce）
 	bool IsCriticalHit() const { return bIsCriticalHit; }
 	bool IsBlockedHit() const { return bIsBlockedHit; }
-
+	
 	// 拓展: 完美闪避
 	bool IsPerfectDodge() const { return bIsPerfectDodge; }
 	
 	void SetIsCriticalHit(bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 	void SetIsBlockedHit(bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
-
+	
+	void SetIsPerfectDodge(bool bInIsPerfectDodge) { bIsPerfectDodge = bInIsPerfectDodge; }
+	
 	/** 必须重写以下三个函数才能让 GAS 认识并能在网络间同步我们自定义的结构体 */ //有点像编程子系统的味道了 hhh
 	virtual UScriptStruct* GetScriptStruct() const override;
 	virtual FTaFeiGameplayEffectContext* Duplicate() const override;
