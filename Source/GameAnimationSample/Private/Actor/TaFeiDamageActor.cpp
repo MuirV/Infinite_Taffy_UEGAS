@@ -12,26 +12,28 @@ ATaFeiDamageActor::ATaFeiDamageActor()
     SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
 }
 
+void ATaFeiDamageActor::BeginPlay()
+{
+    Super::BeginPlay();
+}
+
 void ATaFeiDamageActor::OnOverlap(AActor* TargetActor)
 {
-    ApplyBurning(TargetActor);
+    ApplyDamageToTarget(TargetActor);
 }
 
 void ATaFeiDamageActor::OnEndOverlap(AActor* TargetActor)
 {
-    RemoveBurning(TargetActor);
-}
+    if (!bIsInfinite) return;
 
-void ATaFeiDamageActor::ApplyBurning(AActor* TargetActor)
-{
-    if (!TargetActor || !DamageEffectClass || !DamageTypeTag.IsValid()) return;
+    UAbilitySystemComponent* TargetASC =
+        UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 
-    UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
-    if (!TargetASC) 
+    if (!TargetASC)
     {
-        if (APawn* TargetPawn = Cast<APawn>(TargetActor))
+        if (APawn* Pawn = Cast<APawn>(TargetActor))
         {
-            if (APlayerState* PS = TargetPawn->GetPlayerState())
+            if (APlayerState* PS = Pawn->GetPlayerState())
             {
                 TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
             }
@@ -40,38 +42,36 @@ void ATaFeiDamageActor::ApplyBurning(AActor* TargetActor)
 
     if (!TargetASC) return;
 
-    // 避免重复上同一个 GE
-    if (ActiveEffects.Contains(TargetASC)) return;
+    TArray<FActiveGameplayEffectHandle> HandlesToRemove;
 
-    FGameplayEffectContextHandle ContextHandle = TargetASC->MakeEffectContext();
-    ContextHandle.AddSourceObject(this);
-
-    FGameplayEffectSpecHandle SpecHandle = TargetASC->MakeOutgoingSpec(DamageEffectClass, TrapLevel, ContextHandle);
-
-    if (SpecHandle.IsValid())
+    for (auto& Pair : ActiveDamageEffects)
     {
-        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
-            SpecHandle, DamageTypeTag, BaseDamage);
+        if (Pair.Value == TargetASC)
+        {
+            TargetASC->RemoveActiveGameplayEffect(Pair.Key);
+            HandlesToRemove.Add(Pair.Key);
+        }
+    }
 
-        FActiveGameplayEffectHandle Handle =
-            TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-
-        //  记录
-        ActiveEffects.Add(TargetASC, Handle);
+    for (auto& Handle : HandlesToRemove)
+    {
+        ActiveDamageEffects.Remove(Handle);
     }
 }
 
-void ATaFeiDamageActor::RemoveBurning(AActor* TargetActor)
+void ATaFeiDamageActor::ApplyDamageToTarget(AActor* TargetActor)
 {
-    if (!TargetActor) return;
+    if (!TargetActor || !DamageEffectClass || !DamageTypeTag.IsValid()) return;
+
+    if (TargetActor->ActorHasTag(FName("Enemy")) && !bApplyDamageToEnemies) return;
 
     UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 
     if (!TargetASC)
     {
-        if (APawn* TargetPawn = Cast<APawn>(TargetActor))
+        if (APawn* Pawn = Cast<APawn>(TargetActor))
         {
-            if (APlayerState* PS = TargetPawn->GetPlayerState())
+            if (APlayerState* PS = Pawn->GetPlayerState())
             {
                 TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
             }
@@ -80,9 +80,51 @@ void ATaFeiDamageActor::RemoveBurning(AActor* TargetActor)
 
     if (!TargetASC) return;
 
-    if (ActiveEffects.Contains(TargetASC))
+    // 防止重复叠加 Infinite
+    if (bIsInfinite)
     {
-        TargetASC->RemoveActiveGameplayEffect(ActiveEffects[TargetASC]);
-        ActiveEffects.Remove(TargetASC);
+        for (auto& Pair : ActiveDamageEffects)
+        {
+            if (Pair.Value == TargetASC)
+            {
+                return;
+            }
+        }
+    }
+
+    // Context
+    FGameplayEffectContextHandle ContextHandle = TargetASC->MakeEffectContext();
+    ContextHandle.AddSourceObject(this);
+
+    // 可扩展：PerfectDodge 标记
+    FTaFeiGameplayEffectContext* TaFeiContext =
+        static_cast<FTaFeiGameplayEffectContext*>(ContextHandle.Get());
+
+    if (TaFeiContext)
+    {
+        TaFeiContext->SetIsPerfectDodge(false);
+    }
+
+    // Spec
+    FGameplayEffectSpecHandle SpecHandle =
+        TargetASC->MakeOutgoingSpec(DamageEffectClass, TrapLevel, ContextHandle);
+
+    if (SpecHandle.IsValid())
+    {
+        //  核心：ExecCalc 输入
+        UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(
+            SpecHandle,
+            DamageTypeTag,
+            BaseDamage
+        );
+
+        FActiveGameplayEffectHandle Handle =
+            TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+
+        // 记录 Infinite
+        if (bIsInfinite)
+        {
+            ActiveDamageEffects.Add(Handle, TargetASC);
+        }
     }
 }

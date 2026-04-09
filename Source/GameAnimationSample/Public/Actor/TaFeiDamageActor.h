@@ -22,6 +22,8 @@ class GAMEANIMATIONSAMPLE_API ATaFeiDamageActor : public AActor
 public: 
 	ATaFeiDamageActor();
 
+	void BeginPlay() override;
+	
 protected:
 	// 蓝图碰撞组件触发时调用此函数
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
@@ -30,12 +32,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
 	void OnEndOverlap(AActor* TargetActor);
 	
-	// 造成伤害的核心逻辑
+	// 核心：Apply Damage（走 ExecCalc）
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
-	void ApplyBurning(AActor* TargetActor);
-
-	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
-	void RemoveBurning(AActor* TargetActor);
+	void ApplyDamageToTarget(AActor* TargetActor);
 
 	// ==================== 伤害配置 ====================
     
@@ -49,23 +48,27 @@ protected:
 
 	// 基础伤害数值 (这个值会被打包进 SetByCaller 传给 ExecCalc)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
-	float BaseDamage = 20.f;
+	float BaseDamage = 5.f;
 
 	// 陷阱的环境等级 (用于触发你的 ExecCalc 等级缩放计算)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	float TrapLevel = 1.f;
 
 	// ==================== 属性配置 ====================
-
+	// 陷阱是否对敌人也造成伤害
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
+	bool bApplyDamageToEnemies = false;
+	
 	// 是否踩上去触发一次就销毁 (例如一次性地雷选 True，常驻地刺选 False)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	bool bDestroyOnDamage = false;
 
-	// 陷阱是否对敌人也造成伤害
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
-	bool bApplyDamageToEnemies = false;
+	// Infinite 行为
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
+	bool bIsInfinite = true;
 
-	// 当前正在被燃烧的目标
+	// 记录 Handle（用于移除）
 	UPROPERTY()
-	TMap<UAbilitySystemComponent*, FActiveGameplayEffectHandle> ActiveEffects;
+	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveDamageEffects;
+	
 };
