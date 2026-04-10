@@ -33,6 +33,8 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Damage_Physical = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Damage.Physical"), FString("Physical Damage Type"));
 
+	GameplayTags.Damage_True = UGameplayTagsManager::Get().AddNativeGameplayTag(
+	FName("Damage.True"), FString("True Damage Type, ignores armor"));
 	
 	/* 技能 Tags */
 	GameplayTags.Abilities_Attack_ComboLMB = UGameplayTagsManager::Get().AddNativeGameplayTag(

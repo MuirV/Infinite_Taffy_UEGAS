@@ -26,6 +26,7 @@ public:
 
 	// ---------------- 伤害标签 (Damage) ----------------
 	FGameplayTag Damage_Physical; // 物理伤害
+	FGameplayTag Damage_True; // 真实伤害
 
 	// ---------------- 技能标签 (Abilities) ----------------
 	// 连招系统
