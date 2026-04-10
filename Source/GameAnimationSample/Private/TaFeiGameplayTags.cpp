@@ -47,6 +47,9 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Ultimate"), FString("Ultimate Skill"));
 
+	GameplayTags.Abilities_Dodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Dodge"), FString("Dodge Skill"));
+
 	
 	/* Buff Tags */
 	GameplayTags.Buff_DamageAmplification = UGameplayTagsManager::Get().AddNativeGameplayTag(

@@ -34,6 +34,8 @@ public:
 	FGameplayTag Abilities_Attack_ComboMixed; // 派生连招
 	// 大招
 	FGameplayTag Abilities_Ultimate;          // 大招释放
+
+	FGameplayTag Abilities_Dodge;// 做技能互斥， 闪避时不能干什么...什么时候不能闪避...
 	
 	// ---------------- 状态标签 (Status/Buffs) ----------------
 	FGameplayTag Buff_DamageAmplification;    // 伤害增幅
