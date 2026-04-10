@@ -21,7 +21,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
 	void CauseDamage(AActor* TargetActor);
 
-	// ★ 新增：给蓝图 GA 提供一个快捷获取蒙太奇的节点
+	// 新增：给蓝图 GA 提供一个快捷获取蒙太奇的节点
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
 	UAnimMontage* RetrieveMontageFromAvatar();
 
