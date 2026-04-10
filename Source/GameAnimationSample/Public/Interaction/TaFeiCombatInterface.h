@@ -48,7 +48,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	int32 GetPlayerLevel() const;
 
-	
+	// 开启描边，支持传入不同的颜色数值 (比如青色 251) 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
+	void HighlightActor(int32 StencilValue);
+
+	// 关闭描边   无敌高亮效果
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
+	void UnHighlightActor();
 
 	// 新增：让 GA 来索要蒙太奇的接口
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")

@@ -56,6 +56,10 @@ public:
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	
 protected:
+
+	// 监听无敌 Tag 变化的回调
+	virtual void OnInvincibleTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	
 	// 新增：客户端兜底，当技能从服务器复制过来时触发
 	virtual void OnRep_ActivateAbilities() override;
 	

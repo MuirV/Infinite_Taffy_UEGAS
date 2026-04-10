@@ -5,6 +5,8 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
+#include "GameAnimationSample/GameAnimationSample.h"
+#include "Interaction/TaFeiCombatInterface.h"
 #include "Interaction/TaFeiPlayerInterface.h"
 
 UTaFeiAbilitySystemComponent::UTaFeiAbilitySystemComponent()
@@ -17,6 +19,15 @@ void UTaFeiAbilitySystemComponent::AbilityActorInfoSet()
 {
 	// 当有 GameplayEffect 应用到自己身上时，触发本类的 ClientEffectApplied 函数
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UTaFeiAbilitySystemComponent::ClientEffectApplied);
+
+	// ================= 新增：监听无敌状态 =================
+	// 获取无敌 Tag (确保名称和你在 TaFeiGameplayTags 里定义的一致)
+	const FGameplayTag InvincibleTag = FGameplayTag::RequestGameplayTag(FName("State.Invincible"));
+	
+	// 绑定监听器：只有在 Tag 新增 (0->1) 或移除 (1->0) 时才会触发
+	RegisterGameplayTagEvent(InvincibleTag, EGameplayTagEventType::NewOrRemoved).AddUObject(
+		this, &UTaFeiAbilitySystemComponent::OnInvincibleTagChanged);
+	
 }
 
 void UTaFeiAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
@@ -149,6 +160,27 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 	// 这是在服务器端执行的，如果是局域网主机(Listen Server)玩家，UI 会在这里立刻触发
 	bStartupAbilitiesGiven = true;
 	AbilitiesGivenDelegate.Broadcast(this);
+}
+
+void UTaFeiAbilitySystemComponent::OnInvincibleTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	// 安全获取肉体 (BP_SandboxCharacter)
+	AActor* Avatar = GetAvatarActor();
+	
+	// 检查肉体是否存在且实现了我们的接口
+	if (Avatar && Avatar->Implements<UTaFeiCombatInterface>())
+	{
+		if (NewCount > 0)
+		{
+			// Tag 数量大于 0，说明刚进入无敌状态，开启描边（传入青色数值 251）
+			ITaFeiCombatInterface::Execute_HighlightActor(Avatar, CUSTOM_DEPTH_CYAN);
+		}
+		else
+		{
+			// Tag 数量归零，说明无敌时间彻底结束，关闭描边
+			ITaFeiCombatInterface::Execute_UnHighlightActor(Avatar);
+		}
+	}
 }
 
 
