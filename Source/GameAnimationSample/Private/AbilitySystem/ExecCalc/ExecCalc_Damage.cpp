@@ -92,9 +92,13 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// 新增部分结束 (为后续护甲CurveTable、等级压制等复杂公式做好了准备)
 	
 	// ----------获取基础伤害 ----------
-	// ---------- 获取基础伤害 ----------
-    float Damage = Spec.GetSetByCallerMagnitude(FTaFeiGameplayTags::Get().Damage_Physical, false, 0.f);
+	// ----------获取基础伤害 ----------
+	// 尝试获取物理伤害或真实伤害
+	float PhysicalDamage = Spec.GetSetByCallerMagnitude(FTaFeiGameplayTags::Get().Damage_Physical, false, 0.f);
+	float TrueDamage = Spec.GetSetByCallerMagnitude(FTaFeiGameplayTags::Get().Damage_True, false, 0.f);
 
+	bool bIsTrueDamage = TrueDamage > 0.f;
+	float Damage = bIsTrueDamage ? TrueDamage : PhysicalDamage;
 	
     // =========================================================================
     // Buff应用增伤与减伤 （后续可拓展使用道具后增伤减伤等等）
@@ -108,59 +112,44 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().DamageReductionDef, EvaluationParameters, TargetDamageReduction);
     TargetDamageReduction = FMath::Clamp<float>(TargetDamageReduction, 0.f, 1.f); // 0~1 之间的减伤
 
-	// =========================================================================
-	// 咒术状态开启时增伤或者减伤
-	// =========================================================================
-    Damage = Damage * (1.f + SourceDamageMultiplier) * (1.f - TargetDamageReduction);
+	Damage = Damage * (1.f + SourceDamageMultiplier) * (1.f - TargetDamageReduction);
+
 	
-	// 判断是否拥有State_CursedMode 这个tag（咒术形态）
-	const FGameplayTag CursedModeTag = FTaFeiGameplayTags::Get().State_CursedMode;
-
-	bool bSourceHasCursedMode = EvaluationParameters.SourceTags && EvaluationParameters.SourceTags->HasTag(CursedModeTag);
-	bool bTargetHasCursedMode = EvaluationParameters.TargetTags && EvaluationParameters.TargetTags->HasTag(CursedModeTag);
-	// 如果攻击者处于咒术形态，最终伤害增加 50%
-	if (bSourceHasCursedMode)
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
+	if (!bIsTrueDamage)
 	{
-		Damage *= 1.5f; 
+		// =========================================================================
+		// 结算 格挡 (Block)
+		// =========================================================================
+		float TargetBlockChance = 0.f;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluationParameters, TargetBlockChance);
+		TargetBlockChance = FMath::Max<float>(TargetBlockChance, 0.f);
+
+		const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
+	    
+		
+		UTaFeiAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
+	    
+		Damage = bBlocked ? Damage / 2.f : Damage;
+
+		// =========================================================================
+		// 结算 护甲与破甲 
+		// =========================================================================
+		float TargetArmor = 0.f;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, TargetArmor);
+		TargetArmor = FMath::Max<float>(TargetArmor, 0.f);
+
+		float SourceArmorPenetration = 0.f;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluationParameters, SourceArmorPenetration);
+		SourceArmorPenetration = FMath::Max<float>(SourceArmorPenetration, 0.f);
+
+		float ArmorPenetrationPct = FMath::Clamp(SourceArmorPenetration / 100.f, 0.f, 1.f);
+		float EffectiveArmor = TargetArmor * (1.f - ArmorPenetrationPct);
+		EffectiveArmor = FMath::Max<float>(EffectiveArmor, 0.f);
+	    
+		float ArmorMitigation = FMath::Clamp(EffectiveArmor, 0.f, 85.f);
+		Damage *= (100.f - ArmorMitigation) / 100.f;
 	}
-
-	// 如果受击者处于咒术形态，受到的最终伤害减少 90%
-	if (bTargetHasCursedMode)
-	{
-		Damage *= 0.1f; 
-	}
-    // =========================================================================
-    // 结算 格挡 (Block)
-    // =========================================================================
-    float TargetBlockChance = 0.f;
-    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvaluationParameters, TargetBlockChance);
-    TargetBlockChance = FMath::Max<float>(TargetBlockChance, 0.f);
-
-    const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
-    
-    FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
-    UTaFeiAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
-    
-    Damage = bBlocked ? Damage / 2.f : Damage;
-
-    // =========================================================================
-    // 结算 护甲与破甲 
-    // =========================================================================
-    float TargetArmor = 0.f;
-    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorDef, EvaluationParameters, TargetArmor);
-    TargetArmor = FMath::Max<float>(TargetArmor, 0.f);
-
-    float SourceArmorPenetration = 0.f;
-    ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().ArmorPenetrationDef, EvaluationParameters, SourceArmorPenetration);
-    SourceArmorPenetration = FMath::Max<float>(SourceArmorPenetration, 0.f);
-
-    float ArmorPenetrationPct = FMath::Clamp(SourceArmorPenetration / 100.f, 0.f, 1.f);
-    float EffectiveArmor = TargetArmor * (1.f - ArmorPenetrationPct);
-    EffectiveArmor = FMath::Max<float>(EffectiveArmor, 0.f);
-    
-    float ArmorMitigation = FMath::Clamp(EffectiveArmor, 0.f, 85.f);
-    Damage *= (100.f - ArmorMitigation) / 100.f;
-
     // =========================================================================
     //  结算 暴击 (Critical Hit) 
     // =========================================================================
@@ -185,6 +174,27 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
     
     Damage = bCriticalHit ? (2.f * Damage + SourceCriticalHitDamage) : Damage;
 
+	// =========================================================================
+	// 咒术状态开启时增伤或者减伤
+	// =========================================================================
+	
+	// 判断是否拥有State_CursedMode 这个tag（咒术形态）
+	const FGameplayTag CursedModeTag = FTaFeiGameplayTags::Get().State_CursedMode;
+
+	bool bSourceHasCursedMode = EvaluationParameters.SourceTags && EvaluationParameters.SourceTags->HasTag(CursedModeTag);
+	bool bTargetHasCursedMode = EvaluationParameters.TargetTags && EvaluationParameters.TargetTags->HasTag(CursedModeTag);
+	// 如果攻击者处于咒术形态，最终伤害增加 50%
+	if (bSourceHasCursedMode)
+	{
+		Damage *= 1.5f; 
+	}
+
+	// 如果受击者处于咒术形态，受到的最终伤害减少 90%
+	if (bTargetHasCursedMode)
+	{
+		Damage *= 0.1f; 
+	}
+	
 	// =========================================================================
 	// 结算 无敌帧 与 完美闪避判定
 	// =========================================================================

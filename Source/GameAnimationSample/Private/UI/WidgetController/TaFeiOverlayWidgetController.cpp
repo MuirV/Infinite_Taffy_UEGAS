@@ -96,7 +96,7 @@ void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 		);
 	}
 }
-// 修复：形参必须改成 TaFeiASC，不要遗留 Aura 的名字
+// 修复：形参改成 TaFeiASC
 void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySystemComponent* TaFeiASC)
 {
 	if (!TaFeiASC->bStartupAbilitiesGiven) return;
