@@ -13,7 +13,7 @@
 
 /**
  * 传递经验值的问题，（由于不能使用Character作为C++父类）我们直接将PlayerInterface继承给PlayerState，这样能代而转发XP等数据
- * 情非得已...竟然继承了两个接口，为何传递XP等数据也是拼了......
+ * 情非得已...竟然继承了两个接口，为了传递XP等数据也是拼了...... 原 Aura由于有cpp层面Character类，所以减轻了Playerstate的职责
  */
 
 // 定义 UI 需要监听的委托
