@@ -32,7 +32,7 @@ class GAMEANIMATIONSAMPLE_API UAttributeInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	// 根据 Tag 查找对应的 UI 信息
+	
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Attributes")
 	FTaFeiAttributeInfo FindAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound = false) const;
 	

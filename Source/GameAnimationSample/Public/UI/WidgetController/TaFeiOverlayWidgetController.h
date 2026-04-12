@@ -48,7 +48,7 @@ public:
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToDependencies() override;
 
-	// === 属性条 UI 委托 ===
+	//属性条 UI 委托 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnAttributeChangedSignature OnHealthChanged;
 
@@ -61,14 +61,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnAttributeChangedSignature OnMaxManaChanged;
 
-	// ★ TaFei 专属：大招能量 UI 委托
+	// 大招能量 UI 委托
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnAttributeChangedSignature OnUltimateEnergyChanged;
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnAttributeChangedSignature OnMaxUltimateEnergyChanged;
 
-	// === 屏幕消息委托 ===
+	// 屏幕消息委托
 	UPROPERTY(BlueprintAssignable, Category="GAS|Messages")
 	FMessageWidgetRowSignature MessageWidgetRowDelegate;
 
@@ -76,27 +76,27 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
 	FAbilityInfoSignature AbilityInfoDelegate;
 	
-	// === 经验与等级委托 (预留拓展位) ===
+	// 经验与等级委托 
 	UPROPERTY(BlueprintAssignable, Category="GAS|XP")
-	FOnAttributeChangedSignature OnXPPercentageChangedDelegate; // 进度条百分比
+	FOnAttributeChangedSignature OnXPPercentageChangedDelegate; 
 
 	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
 	FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
 
 protected:
-	// ★ 挂载屏幕提示消息的数据表
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UAbilityInfo> AbilityInfo;
 	
-	// 辅助函数：根据 Tag 从 DataTable 提取消息数据
+	
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 
 	void OnInitializeStartupAbilities(UTaFeiAbilitySystemComponent* AuraAbilitySystemComponent);
-	// 等你以后加入了 LevelUpInfo 数据资产，可以在这里处理 XP 百分比转换
+	
 	void OnXPChanged(int32 NewXP);
 };
 

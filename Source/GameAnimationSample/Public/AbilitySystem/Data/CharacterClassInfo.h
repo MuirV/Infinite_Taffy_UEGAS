@@ -42,15 +42,15 @@ struct FTaFeiCharacterClassDefaultInfo
 {
 	GENERATED_BODY()
 
-	// 专属主属性 (比如 Boss 的力量肯定比 Mob 高)
+
 	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
 	TSubclassOf<UGameplayEffect> PrimaryAttributes;
 
-	// 专属初始技能 (比如 Player 有连招，Boss 有特定的砸地技能)
+
 	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
 	TArray<FTaFeiAbilityInfo> StartupAbilities;
 
-	// 击杀该类型敌人奖励的经验值 (配置曲线，随等级提升)
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Class Defaults")
 	FScalableFloat XPReward = FScalableFloat();
 };
@@ -62,23 +62,22 @@ class GAMEANIMATIONSAMPLE_API UCharacterClassInfo : public UDataAsset
 	
 public:
 	
-	// ★ 核心字典：根据枚举配置不同的主属性和技能
+
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class Defaults")
 	TMap<ETaFeiCharacterClass, FTaFeiCharacterClassDefaultInfo> CharacterClassInformation;
 
-	// 公共副属性 (所有角色通用，比如最大生命值 = 力量 * 10)
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TSubclassOf<UGameplayEffect> SecondaryAttributes;
 
-	// 公共核心属性 (所有角色通用，用来填满当前血量和蓝量)
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
-	// 公共技能 (所有角色通用，比如 HitReact 受击反应技能)
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
 
-	// 辅助函数：根据枚举获取对应的结构体数据
 	UFUNCTION(BlueprintCallable, Category="TaFei|CharacterClassData")
 	FTaFeiCharacterClassDefaultInfo GetClassDefaultInfo(ETaFeiCharacterClass CharacterClass) const;
 	

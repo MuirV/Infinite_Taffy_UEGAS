@@ -24,13 +24,12 @@ class GAMEANIMATIONSAMPLE_API AEnemyBase : public ACharacter, public IAbilitySys
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+	
 	AEnemyBase();
-	// ~IAbilitySystemInterface 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UTaFeiAttributeSet* GetAttributeSet() const { return TaFeiAttributeSet; }
 
-	// ~ITaFeiCombatInterface
+	
 	virtual int32 GetPlayerLevel_Implementation() const override;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual ETaFeiCharacterClass GetCharacterClass_Implementation() override;
@@ -59,7 +58,7 @@ protected:
 	virtual void InitAbilityActorInfo();
 	virtual void InitializeDefaultAttributes() const ;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	// --- GAS 核心组件 ---
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
 	TObjectPtr<UTaFeiAbilitySystemComponent> TaFeiAbilitySystemComponent;
 
@@ -71,7 +70,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|GAS")
 	TSubclassOf<class UGameplayEffect> DefaultAttributes;
 	
-	// --- 基础属性与经验值 ---
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	int32 Level = 1;
 
@@ -84,7 +83,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	ETaFeiCharacterClass CharacterClass = ETaFeiCharacterClass::Mob;
 	
-	// --- 插槽配置 (Socket) ---
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	FName WeaponSocketName = FName("WeaponSocket");
 
@@ -94,7 +93,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TaFei|Combat")
 	FName RightHandSocketName = FName("RightHandSocket");
 
-	// --- 韧性与受击系统 ---
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|Combat")
 	void HitReact();
 
