@@ -2,7 +2,10 @@
 
 
 #include "Player/TaFeiPlayerController.h"
+
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputSubsystems.h"
+#include "TaFeiGameplayTags.h"
 #include "Input/TaFeiInputComponent.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "UI/Widget/TaFeiDamageTextComponent.h" 
@@ -110,6 +113,12 @@ void ATaFeiPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	{
 		
 		GetASC()->AbilityInputTagReleased(InputTag);
+	}
+
+	if (InputTag.MatchesTagExact(FTaFeiGameplayTags::Get().InputTag_Ultimate))  //专门为大招用Event监听驱动，汗...
+	{
+		FGameplayEventData Payload;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetPawn(), FTaFeiGameplayTags::Get().Event_Ultimate_Release, Payload);
 	}
 }
 
