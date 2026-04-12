@@ -173,13 +173,13 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f); // 用完清零
 
-		//拦截并处理完美闪避 现在 TargetASC 保证不为空了
+		//拦截并处理完美闪避 
 		if (UTaFeiAbilitySystemLibrary::IsPerfectDodge(Props.EffectContextHandle))
 		{
-			// 播放 GameplayCue (音效、子弹时间特效等)
+			
 			FGameplayCueParameters CueParams;
 			CueParams.EffectContext = Props.EffectContextHandle;
-			// 让受击者的 ASC 触发这个 GC，确保位置在自己身上
+			
 			Props.TargetASC->ExecuteGameplayCue(FTaFeiGameplayTags::Get().GameplayCue_Combat_PerfectDodge, CueParams);
 
 			// 发送完美闪避事件！(用于触发后续的 1秒无敌 GA)

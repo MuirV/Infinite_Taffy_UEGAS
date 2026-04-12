@@ -109,16 +109,25 @@ void ATaFeiPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void ATaFeiPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetASC())
+	
+	if (UTaFeiAbilitySystemComponent* CurrentASC = GetASC())
 	{
 		
-		GetASC()->AbilityInputTagReleased(InputTag);
-	}
-
-	if (InputTag.MatchesTagExact(FTaFeiGameplayTags::Get().InputTag_Ultimate))  //专门为大招用Event监听驱动，汗...
-	{
-		FGameplayEventData Payload;
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetPawn(), FTaFeiGameplayTags::Get().Event_Ultimate_Release, Payload);
+		CurrentASC->AbilityInputTagReleased(InputTag);
+        
+		
+		if (InputTag.MatchesTagExact(FTaFeiGameplayTags::Get().InputTag_Ultimate))
+		{
+			
+			FGameplayEventData Payload;
+			
+			CurrentASC->HandleGameplayEvent(FTaFeiGameplayTags::Get().Event_Ultimate_Release, &Payload);
+		}
+		else
+		{
+			
+			UE_LOG(LogTemp, Error, TEXT("松开的标签 [%s] 不是大招标签 [%s]！"), *InputTag.ToString(), *FTaFeiGameplayTags::Get().InputTag_Ultimate.ToString());
+		}
 	}
 }
 
