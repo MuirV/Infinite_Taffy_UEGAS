@@ -31,10 +31,10 @@ class GAMEANIMATIONSAMPLE_API UTaFeiInputConfig : public UDataAsset
 {
 	GENERATED_BODY()
 public:
-	// 在蓝图里填写的 输入动作-标签 列表
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FTaFeiInputAction> AbilityInputActions;
 
-	// 根据 Tag 查找 InputAction（以后做 UI 提示时会用到）
+
 	const UInputAction* FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound = false) const;	
 };

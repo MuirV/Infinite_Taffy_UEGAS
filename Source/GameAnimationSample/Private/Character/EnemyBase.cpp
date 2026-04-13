@@ -17,29 +17,27 @@
 // Sets default values
 AEnemyBase::AEnemyBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	
 	PrimaryActorTick.bCanEverTick = false; 
-
-	// --- 默认网格体与胶囊体设置 ---
-	// 让敌人的胶囊体忽略摄像机碰撞，防止视角推近时穿模抖动
+	
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	
-	// 调整默认自带 Mesh 的位置和旋转，让它完美贴合胶囊体底盘 (面向X轴正方向)
+	
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.f, 0.f));
-	// 同样让模型忽略摄像机，但阻挡发射物/能见度（用于你的武器射线检测）
+
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
 
-	// --- 实例化 GAS 组件 ---
+	
 	TaFeiAbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
 	TaFeiAbilitySystemComponent->SetIsReplicated(true);
 	
-	// AI 敌人强烈推荐用 Minimal 模式，节省服务器带宽
+	
 	TaFeiAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	TaFeiAttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
 
-	// 运动设置
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -66,19 +64,19 @@ FVector AEnemyBase::GetCombatSocketLocation_Implementation(const FGameplayTag& M
 {
 	if (!GetMesh()) return FVector::ZeroVector;
 
-	// 演示逻辑：如果传入的是左键平A，返回武器插槽
+	
 	if (MontageTag.MatchesTagExact(FTaFeiGameplayTags::Get().Abilities_Attack_ComboLMB))
 	{
 		return GetMesh()->GetSocketLocation(WeaponSocketName);
 	}
 	
-	// 默认返回武器插槽
+	
 	return GetMesh()->GetSocketLocation(WeaponSocketName);
 }
 
 ETaFeiCharacterClass AEnemyBase::GetCharacterClass_Implementation()
 {
-	// 让接口直接返回你这个类里的变量，这样在蓝图里选 Mob，才会返回 Mob
+	
 	return CharacterClass;
 }
 
@@ -97,7 +95,7 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
-	// 初始化 GAS 信息
+	
 	InitAbilityActorInfo();
 
 	UE_LOG(LogTemp, Error, TEXT("Enemy BeginPlay Class = %d"), (int32)CharacterClass);
@@ -123,7 +121,7 @@ void AEnemyBase::BeginPlay()
 		);
 
 		// 监听受击 Tag
-		// 注意：请确保你的受击 Tag 是确切注册过的，比如 FName("Effects.HitReact")
+		// 受击 Tag 是注册过的，FName("Effects.HitReact")
 		FGameplayTag HitReactTag = FGameplayTag::RequestGameplayTag(FName("Effects.HitReact"));
 		TaFeiAbilitySystemComponent->RegisterGameplayTagEvent(HitReactTag, EGameplayTagEventType::NewOrRemoved).AddUObject(
 			this, &AEnemyBase::HitReactTagChanged
@@ -147,7 +145,7 @@ void AEnemyBase::InitAbilityActorInfo()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Enemy Init GAS: %s"), *GetName());
 
-	// 对于敌人：Owner 和 Avatar 都是自己！
+	
 	TaFeiAbilitySystemComponent->InitAbilityActorInfo(this, this);
 	TaFeiAbilitySystemComponent->AbilityActorInfoSet();
 
@@ -155,7 +153,7 @@ void AEnemyBase::InitAbilityActorInfo()
 	{
 		InitializeDefaultAttributes();
 		
-		//  直接复用我们上次写在 ASC 里的完美函数
+		//   ASC 里的函数
 		TaFeiAbilitySystemComponent->AddStartupAbilitiesFromData(CharacterData, CharacterClass, Level);
 	}
 }
@@ -174,7 +172,7 @@ UAnimMontage* AEnemyBase::GetHitReactMontage_Implementation()
 
 void AEnemyBase::HitReact_Implementation()
 {
-	// 留给蓝图实现：播放受击蒙太奇或特效
+	
 	
 	
 }

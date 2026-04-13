@@ -31,19 +31,19 @@ void UTaFeiInputComponent::BindAbilityActions(const UTaFeiInputConfig* InputConf
 	{
 		if (Action.InputAction && Action.InputTag.IsValid())
 		{
-			// 按下 (Started)
+			
 			if (PressedFunc)
 			{
 				BindAction(Action.InputAction, ETriggerEvent::Started, Object, PressedFunc, Action.InputTag);
 			}
 
-			// 持续按住 (Triggered)
+			
 			if (HeldFunc)
 			{
 				BindAction(Action.InputAction, ETriggerEvent::Triggered, Object, HeldFunc, Action.InputTag);
 			}
 
-			// 松开 (Completed)
+		
 			if (ReleasedFunc)
 			{
 				BindAction(Action.InputAction, ETriggerEvent::Completed, Object, ReleasedFunc, Action.InputTag);
