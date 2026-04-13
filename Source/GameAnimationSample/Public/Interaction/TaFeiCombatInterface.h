@@ -44,23 +44,23 @@ class GAMEANIMATIONSAMPLE_API ITaFeiCombatInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	// 获取当前角色的等级 (纯虚函数，需要在 BP 或 C++ 中实现)
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	int32 GetPlayerLevel() const;
 
-	// 开启描边，支持传入不同的颜色数值 (比如青色 251) 
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	void HighlightActor(int32 StencilValue);
 
-	// 关闭描边   无敌高亮效果
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	void UnHighlightActor();
 
-	// 新增：让 GA 来索要蒙太奇的接口
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	UAnimMontage* GetCombatMontageByTag(const FGameplayTag& MontageTag);
 
-	// 获取战斗插槽的位置 (例如武器尖端、左手、右手，用来生成特效或进行伤害判定)
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
 
