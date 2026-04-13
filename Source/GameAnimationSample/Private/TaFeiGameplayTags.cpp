@@ -46,6 +46,9 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Attack_ComboMixed = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Attack.ComboMixed"), FString("Mixed Combo: LMB once then F twice"));
 
+	GameplayTags.Abilities_Attack_Monster = UGameplayTagsManager::Get().AddNativeGameplayTag(
+			FName("Abilities.Attack.Monster"), FString("Monster Attack"));
+	
 	GameplayTags.Abilities_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Ultimate"), FString("Ultimate Skill"));
 

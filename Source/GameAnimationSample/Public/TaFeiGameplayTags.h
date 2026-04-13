@@ -33,6 +33,8 @@ public:
 	FGameplayTag Abilities_Attack_ComboLMB;   // 连续左键
 	FGameplayTag Abilities_Attack_ComboF;   // 连续 F 键
 	FGameplayTag Abilities_Attack_ComboMixed; // 派生连招
+
+	FGameplayTag Abilities_Attack_Monster;
 	// 大招
 	FGameplayTag Abilities_Ultimate;          // 大招释放
 

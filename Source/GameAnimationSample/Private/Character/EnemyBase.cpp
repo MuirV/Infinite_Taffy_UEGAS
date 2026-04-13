@@ -31,7 +31,9 @@ AEnemyBase::AEnemyBase()
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
-
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
+	GetCharacterMovement()->bUseControllerDesiredRotation = false; 
+	bUseControllerRotationYaw = false;
 	
 	TaFeiAbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
 	TaFeiAbilitySystemComponent->SetIsReplicated(true);
@@ -103,12 +105,8 @@ void AEnemyBase::BeginPlay()
 	InitAbilityActorInfo();
 
 	UE_LOG(LogTemp, Error, TEXT("Enemy BeginPlay Class = %d"), (int32)CharacterClass);
-	// if (HasAuthority()) 这里重复
-	// {
-	// 	UTaFeiAbilitySystemLibrary::GiveStartupGameplayAbilities(this,TaFeiAbilitySystemComponent, CharacterClass);
-	// }
 	
-	// 给血条 UI 设置控制器 (敌人自己就是控制器)
+	// 给血条 UI 设置控制器 
 	if (UTaFeiUserWidget* TaFeiUserWidget = Cast<UTaFeiUserWidget>(HealthBar->GetUserWidgetObject()))
 	{
 		TaFeiUserWidget->SetWidgetController(this);
