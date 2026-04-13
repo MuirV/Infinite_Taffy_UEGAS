@@ -51,6 +51,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 3.5f;
 	
+	UFUNCTION(BlueprintCallable, Category = "TaFei|AI")
+	void PerformAttack();
 protected:
 	
 	virtual void BeginPlay() override;
@@ -94,6 +96,7 @@ protected:
 	FName RightHandSocketName = FName("RightHandSocket");
 
 	
+	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "TaFei|Combat")
 	void HitReact();
 
@@ -108,7 +111,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AAIController> TaFeiAIController;
-	
+
+	FTaFeiTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaFeiTaggedMontage>& TaggedMontages) const;
 private:
 	
 	UPROPERTY(EditAnywhere, Category = "Combat")

@@ -25,6 +25,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
 	UAnimMontage* RetrieveMontageFromAvatar();
 
+	
+	
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Damage")

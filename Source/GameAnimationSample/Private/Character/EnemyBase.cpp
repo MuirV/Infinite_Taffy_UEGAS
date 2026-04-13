@@ -3,15 +3,19 @@
 
 #include "Character/EnemyBase.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AIController.h"
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 #include "AbilitySystem/TaFeiAttributeSet.h"
 #include "TaFeiGameplayTags.h" 
 #include "AbilitySystem/TaFeiAbilitySystemLibrary.h"
+#include "AI/TaFeiAIController.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "UI/Widget/TaFeiUserWidget.h"
 
 // Sets default values
@@ -138,7 +142,16 @@ void AEnemyBase::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	
 	if (!HasAuthority()) return; //PossessedBy本来就只在服务器运行，加上这个判断略显冗余
-	
+
+	TaFeiAIController = Cast<ATaFeiAIController>(NewController); 
+	if (TaFeiAIController && BehaviorTree)
+	{
+		// 初始化黑板并运行行为树
+		TaFeiAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+		TaFeiAIController->RunBehaviorTree(BehaviorTree);
+		
+		TaFeiAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	}
 }
 
 void AEnemyBase::InitAbilityActorInfo()
@@ -168,6 +181,31 @@ UAnimMontage* AEnemyBase::GetHitReactMontage_Implementation()
 {
 	
 	return HitReactMontage; //重写...并返回HitReactMontage，自由在相应角色里面配置
+}
+
+void AEnemyBase::PerformAttack()
+{
+	TArray<FTaFeiTaggedMontage> AttackMontages = ITaFeiCombatInterface::Execute_GetAttackMontages(this);
+	if (AttackMontages.Num() == 0) return;
+
+	
+	FTaFeiTaggedMontage Selected = GetRandomTaggedMontageFromArray(AttackMontages);
+   
+	FGameplayEventData Payload;
+	Payload.EventTag = Selected.MontageTag;
+	Payload.Instigator = this;
+    
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Selected.MontageTag, Payload);
+}
+
+FTaFeiTaggedMontage AEnemyBase::GetRandomTaggedMontageFromArray(const TArray<FTaFeiTaggedMontage>& TaggedMontages) const
+{
+	if (TaggedMontages.Num() > 0)
+	{
+		const int32 Selection = FMath::RandRange(0, TaggedMontages.Num() - 1);
+		return TaggedMontages[Selection];
+	}
+	return FTaFeiTaggedMontage(); 
 }
 
 void AEnemyBase::HitReact_Implementation()
