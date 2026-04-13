@@ -47,7 +47,7 @@ public:
 	FGameplayTag Attributes_Meta_IncomingXP;
 
 	// ---------------- 属性标签 (Attributes) ----------------
-	FGameplayTag Attributes_Vital_Health;
+	//FGameplayTag Attributes_Vital_Health;
 	FGameplayTag Attributes_Vital_UltimateEnergy; // 大招能量
 
 	// 状态 Tags

@@ -185,18 +185,17 @@ void AEnemyBase::PerformAttack()
 {
 	TArray<FTaFeiTaggedMontage> AttackMontages = ITaFeiCombatInterface::Execute_GetAttackMontages(this);
 
-	// 日志 1: 看看蓝图接口有没有返回数据
 	UE_LOG(LogTemp, Warning, TEXT("AI Log: GetAttackMontages Count = %d"), AttackMontages.Num());
 
 	if (AttackMontages.Num() == 0) 
 	{
-		UE_LOG(LogTemp, Error, TEXT("AI Log: PerformAttack 失败 - 蓝图接口没有配置攻击蒙太奇数组！"));
+		
 		return;
 	}
 
 	FTaFeiTaggedMontage Selected = GetRandomTaggedMontageFromArray(AttackMontages);
    
-	// 日志 2: 看看随机挑出的 Tag 到底是什么
+	
 	UE_LOG(LogTemp, Warning, TEXT("AI Log: Sending Gameplay Event Tag = %s"), *Selected.MontageTag.ToString());
 
 	FGameplayEventData Payload;

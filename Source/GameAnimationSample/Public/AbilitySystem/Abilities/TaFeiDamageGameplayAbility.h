@@ -36,7 +36,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Damage")
 	TMap<FGameplayTag, FScalableFloat> DamageTypes;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "TaFei|Combat")
 	FGameplayTag CombatMontageTag;
 
 	UFUNCTION(BlueprintPure)
