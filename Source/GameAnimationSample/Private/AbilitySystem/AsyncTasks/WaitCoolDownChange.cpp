@@ -42,7 +42,7 @@ void UWaitCooldownChange::EndTask()
 
 void UWaitCooldownChange::CooldownTagChanged(const FGameplayTag InCooldownTag, int32 NewCount)
 {
-	// 如果该冷却 Tag 的数量变成了 0，说明冷却结束了
+	
 	if (NewCount == 0)
 	{
 		CooldownEnd.Broadcast(0.f);
@@ -51,7 +51,7 @@ void UWaitCooldownChange::CooldownTagChanged(const FGameplayTag InCooldownTag, i
 
 void UWaitCooldownChange::OnActiveEffectAdded(UAbilitySystemComponent* TargetASC, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
-	// 获取这个 GE 身上所有的资产标签和赋予标签
+	
 	FGameplayTagContainer AssetTags;
 	SpecApplied.GetAllAssetTags(AssetTags);
 

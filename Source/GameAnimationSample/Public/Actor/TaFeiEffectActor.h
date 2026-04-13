@@ -37,7 +37,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	//  核心方法：向目标应用 GE
+
 	UFUNCTION(BlueprintCallable, Category = "TaFei|EffectActor")
 	void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
@@ -49,9 +49,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|EffectActor")
 	void OnEndOverlap(AActor* TargetActor);
 
-	// ==================== 属性配置 ====================
 	
-	// 是否在应用效果后销毁自身 (比如一次性药水选 True，毒沼泽选 False)
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	bool bDestroyOnEffectApplication = false;
 
@@ -63,21 +61,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	float ActorLevel = 1.f;
 
-	// ==================== 瞬时效果 (如血瓶/蓝瓶) ====================
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects|Instant")
 	TSubclassOf<UGameplayEffect> InstantGameplayEffectClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects|Instant")
 	ETaFeiEffectApplicationPolicy InstantEffectApplicationPolicy = ETaFeiEffectApplicationPolicy::DoNotApply;
 
-	// ==================== 持续效果 (如移速符文/防御神符) ====================
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects|Duration")
 	TSubclassOf<UGameplayEffect> DurationGameplayEffectClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects|Duration")
 	ETaFeiEffectApplicationPolicy DurationEffectApplicationPolicy = ETaFeiEffectApplicationPolicy::DoNotApply;
 
-	// ==================== 无限效果 (如毒沼泽/回血阵) ====================
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects|Infinite")
 	TSubclassOf<UGameplayEffect> InfiniteGameplayEffectClass;
 

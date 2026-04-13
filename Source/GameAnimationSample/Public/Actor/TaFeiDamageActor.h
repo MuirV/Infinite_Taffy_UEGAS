@@ -25,20 +25,18 @@ public:
 	void BeginPlay() override;
 	
 protected:
-	// 蓝图碰撞组件触发时调用此函数
+	
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
 	void OnOverlap(AActor* TargetActor);
 
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
 	void OnEndOverlap(AActor* TargetActor);
 	
-	// 核心：Apply Damage（走 ExecCalc）
+	
 	UFUNCTION(BlueprintCallable, Category = "TaFei|DamageActor")
 	void ApplyDamageToTarget(AActor* TargetActor);
 
-	// ==================== 伤害配置 ====================
-    
-	// 必须配置为写好的带 ExecCalc_Damage 的 GE (例如 GE_TestDamage)
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
@@ -54,8 +52,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	float TrapLevel = 1.f;
 
-	// ==================== 属性配置 ====================
-	// 陷阱是否对敌人也造成伤害
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	bool bApplyDamageToEnemies = false;
 	
@@ -63,7 +60,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Damage Settings")
 	bool bDestroyOnDamage = false;
 
-	// Infinite 行为
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
 	bool bIsInfinite = true;
 

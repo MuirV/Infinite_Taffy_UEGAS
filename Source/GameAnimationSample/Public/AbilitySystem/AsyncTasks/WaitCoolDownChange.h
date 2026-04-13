@@ -24,11 +24,11 @@ class GAMEANIMATIONSAMPLE_API UWaitCooldownChange : public UBlueprintAsyncAction
 
 public:
 
-	// 冷却开始时触发
+	
 	UPROPERTY(BlueprintAssignable)
 	FTaFeiCooldownChangeSignature CooldownStart;
 
-	// 冷却结束时触发
+	
 	UPROPERTY(BlueprintAssignable)
 	FTaFeiCooldownChangeSignature CooldownEnd;
 
@@ -36,21 +36,21 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true"))
 	static UWaitCooldownChange* WaitForCooldownChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTag& InCooldownTag);
 
-	// 结束并销毁任务
+	
 	UFUNCTION(BlueprintCallable)
 	void EndTask();
 
 protected:
 
-	// 存储绑定的 ASC
+	
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> ASC;
     
 	FGameplayTag CooldownTag;
 
-	// 回调函数：当冷却 Tag 的数量发生变化时
+	
 	void CooldownTagChanged(const FGameplayTag InCooldownTag, int32 NewCount);
 	
-	// 回调函数：当有新的 GameplayEffect 应用到身上时
+	
 	void OnActiveEffectAdded(UAbilitySystemComponent* TargetASC, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveEffectHandle);
 };
