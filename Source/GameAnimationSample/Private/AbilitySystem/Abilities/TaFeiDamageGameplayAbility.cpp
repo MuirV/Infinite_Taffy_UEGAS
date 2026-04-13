@@ -64,13 +64,19 @@ UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
 	
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 
+	// 日志 检查 GA 里的 CombatMontageTag 是不是空的
+	UE_LOG(LogTemp, Warning, TEXT("GAS Log: GA trying to retrieve montage with Tag = %s"), *CombatMontageTag.ToString());
 
 	if (AvatarActor && AvatarActor->Implements<UTaFeiCombatInterface>())
 	{
-	
-		return ITaFeiCombatInterface::Execute_GetCombatMontageByTag(AvatarActor, CombatMontageTag);
+		UAnimMontage* FoundMontage = ITaFeiCombatInterface::Execute_GetCombatMontageByTag(AvatarActor, CombatMontageTag);
+       
+		if(!FoundMontage)
+		{
+			UE_LOG(LogTemp, Error, TEXT("GAS Log: RetrieveMontage 失败 - 蓝图接口没返回对应 Tag 的蒙太奇！"));
+		}
+		return FoundMontage;
 	}
-	
 	return nullptr;
 }
 
