@@ -12,6 +12,9 @@ class GAMEANIMATIONSAMPLE_API UTaFeiUltimateGameplayAbility : public UTaFeiDamag
 	GENERATED_BODY()
 
 public:
+	UTaFeiUltimateGameplayAbility();
+	
+	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Ultimate")
 	void CauseUltimateDamage(AActor* TargetActor, float ChargeTime);

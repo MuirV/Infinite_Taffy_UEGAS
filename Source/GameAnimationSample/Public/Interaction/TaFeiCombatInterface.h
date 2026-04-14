@@ -58,8 +58,7 @@ public:
 
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
-	UAnimMontage* GetCombatMontageByTag(const FGameplayTag& MontageTag);
-
+	TArray<UAnimMontage*> GetCombatMontagesByTag(const FGameplayTag& MontageTag);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat Interface")
 	FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);

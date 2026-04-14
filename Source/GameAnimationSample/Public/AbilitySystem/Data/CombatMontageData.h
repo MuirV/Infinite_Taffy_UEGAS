@@ -22,7 +22,7 @@ struct FTaFeiMontageInfo
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Combat")
-	TObjectPtr<UAnimMontage> Montage;
+	TArray<TObjectPtr<UAnimMontage>> Montages;
 };
 
 /**
@@ -39,5 +39,5 @@ public:
 
 	
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
-	UAnimMontage* GetMontageByTag(const FGameplayTag& Tag) const;
+	TArray<UAnimMontage*> GetMontagesByTag(const FGameplayTag& Tag) const;
 };

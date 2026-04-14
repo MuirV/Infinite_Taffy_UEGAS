@@ -3,16 +3,15 @@
 
 #include "AbilitySystem/Data/CombatMontageData.h"
 
-UAnimMontage* UCombatMontageData::GetMontageByTag(const FGameplayTag& Tag) const
+TArray<UAnimMontage*> UCombatMontageData::GetMontagesByTag(const FGameplayTag& Tag) const
 {
-	// 遍历数组，找到 Tag 匹配的蒙太奇并返回
 	for (const FTaFeiMontageInfo& Info : CombatMontages)
 	{
 		if (Info.MontageTag == Tag)
 		{
-			return Info.Montage;
+			// 返回这套连招的所有 Montage
+			return Info.Montages;
 		}
 	}
-	
-	return nullptr;
+	return TArray<UAnimMontage*>();
 }

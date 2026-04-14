@@ -5,6 +5,19 @@
 #include "AbilitySystemComponent.h"
 #include "TaFeiGameplayTags.h"
 
+UTaFeiUltimateGameplayAbility::UTaFeiUltimateGameplayAbility()
+{
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+}
+
+void UTaFeiUltimateGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+                                                    const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+                                                    const FGameplayEventData* TriggerEventData)
+{
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+}
+
 void UTaFeiUltimateGameplayAbility::CauseUltimateDamage(AActor* TargetActor, float ChargeTime)
 {
 	if (!DamageEffectClass || !TargetActor) return;
