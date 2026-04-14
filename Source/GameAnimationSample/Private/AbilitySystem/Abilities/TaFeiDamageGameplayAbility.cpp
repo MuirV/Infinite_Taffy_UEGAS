@@ -18,7 +18,7 @@ void UTaFeiDamageGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!bAutoPlayMontage) //是否交由cpp层面播动画，大招取消勾选
+	if (!bAutoPlayMontage) 
 	{
 		return; 
 	}
@@ -49,6 +49,19 @@ void UTaFeiDamageGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+void UTaFeiDamageGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateCancelAbility)
+{
+	if (MontageTask) { MontageTask->EndTask(); }
+    
+	
+	bIsTransitioning = false;
+	
+	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+	
+}
+
 void UTaFeiDamageGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
@@ -62,11 +75,17 @@ void UTaFeiDamageGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 
 void UTaFeiDamageGameplayAbility::PlayComboMontage()
 {
-	bIsTransitioning = false;
-
-	if (MontageTask) { MontageTask->EndTask(); }
+	if (MontageTask)
+	{
+		MontageTask->OnCompleted.RemoveAll(this);
+		MontageTask->OnInterrupted.RemoveAll(this);
+		MontageTask->OnCancelled.RemoveAll(this);
+		MontageTask->EndTask();
+	}
 	if (WaitOpenTask) { WaitOpenTask->EndTask(); }
 	if (WaitCloseTask) { WaitCloseTask->EndTask(); }
+	
+	bIsTransitioning = false;
 	
 	UAnimMontage* MontageToPlay = RetrieveMontageFromAvatar();
 	
@@ -80,6 +99,7 @@ void UTaFeiDamageGameplayAbility::PlayComboMontage()
 	MontageTask->OnCompleted.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageCompleted);
 	MontageTask->OnInterrupted.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageInterrupted);
 	MontageTask->OnCancelled.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageInterrupted);
+	
 	MontageTask->ReadyForActivation();
 
 	WaitOpenTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FTaFeiGameplayTags::Get().Event_Combo_WindowOpen);
@@ -126,7 +146,7 @@ void UTaFeiDamageGameplayAbility::OnMontageCompleted()
 void UTaFeiDamageGameplayAbility::OnMontageInterrupted()
 {
 	// 修复 BUG：只有在被外力打断（比如受击、闪避）时，才结束技能。
-	// 如果是因为我们主动切连招导致的 Interrupt，放行！
+	
 	if (!bIsTransitioning)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -199,7 +219,6 @@ UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
 		
 		if (MontageArray.Num() == 0)
 		{
-			UE_LOG(LogTemp, Error, TEXT("GAS Log: RetrieveMontage 失败 - Tag [%s] 对应的数组为空！"), *CombatMontageTag.ToString());
 			return nullptr;
 		}
 		
@@ -211,19 +230,17 @@ UAnimMontage* UTaFeiDamageGameplayAbility::RetrieveMontageFromAvatar()
             
 			if (SelectedMontage)
 			{
-				UE_LOG(LogTemp, Log, TEXT("GAS Log: 成功获取连招段位 %d 的蒙太奇: %s"), ComboIndex, *SelectedMontage->GetName());
 				return SelectedMontage;
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("GAS Log: ComboIndex [%d] 超出数组范围 (Size: %d)，重置为第一段"), ComboIndex, MontageArray.Num());
 			
 			return MontageArray[0]; 
 		}
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("GAS Log: RetrieveMontage 失败 - AvatarActor 无效或未实现接口"));
+	
 	return nullptr;
 }
 
