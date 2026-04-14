@@ -102,6 +102,7 @@ void UTaFeiDamageGameplayAbility::OnComboWindowClosed(FGameplayEventData Payload
 	// 核心判定：在窗口期是否缓存了玩家输入，并且连段没有超过最大配置数（后续可拓展预输入）
 	if (bInputBuffered && ComboIndex < MaxComboCount)
 	{
+		bIsTransitioning = true;
 		
 		ComboIndex++;            
 		bInputBuffered = false;  
