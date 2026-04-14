@@ -53,8 +53,10 @@ void UTaFeiDamageGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 
-	//预输入
-	bInputBuffered = true;
+	if (bComboWindowOpen)
+	{
+		bInputBuffered = true;
+	}
 	
 }
 
@@ -92,7 +94,7 @@ void UTaFeiDamageGameplayAbility::PlayComboMontage()
 void UTaFeiDamageGameplayAbility::OnComboWindowOpened(FGameplayEventData Payload)
 {
 	bComboWindowOpen = true;
-	//bInputBuffered = false; 
+	bInputBuffered = false; 
 }
 
 void UTaFeiDamageGameplayAbility::OnComboWindowClosed(FGameplayEventData Payload)
