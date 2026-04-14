@@ -171,7 +171,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f); // 用完清零
+		SetIncomingDamage(0.f); 
 
 		//拦截并处理完美闪避 
 		if (UTaFeiAbilitySystemLibrary::IsPerfectDodge(Props.EffectContextHandle))
@@ -182,15 +182,15 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 			
 			Props.TargetASC->ExecuteGameplayCue(FTaFeiGameplayTags::Get().GameplayCue_Combat_PerfectDodge, CueParams);
 
-			// 发送完美闪避事件！(用于触发后续的 1秒无敌 GA)
+			
 			FGameplayEventData Payload;
 			Payload.EventTag = FTaFeiGameplayTags::Get().Event_Combat_PerfectDodge;
-			Payload.Instigator = Props.SourceAvatarActor; // 谁打的我
-			Payload.Target = Props.TargetAvatarActor;     // 我是谁
+			Payload.Instigator = Props.SourceAvatarActor; 
+			Payload.Target = Props.TargetAvatarActor;     
 			// 直接往自己身上发事件
 			Props.TargetASC->HandleGameplayEvent(Payload.EventTag, &Payload);
             
-			UE_LOG(LogTemp, Warning, TEXT("=== 触发完美闪避！已发送 GC 和 Event ==="));
+			
 			return; // 完美闪避不扣血，直接退出当前逻辑
 		}
 		

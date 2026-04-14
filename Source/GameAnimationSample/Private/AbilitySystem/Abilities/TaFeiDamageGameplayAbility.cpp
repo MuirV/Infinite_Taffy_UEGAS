@@ -8,6 +8,7 @@
 #include "TaFeiGameplayTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "GameFramework/PlayerState.h"
 
 UTaFeiDamageGameplayAbility::UTaFeiDamageGameplayAbility()
 {
@@ -158,27 +159,30 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	// 安全检查
 	if (!DamageEffectClass || !TargetActor) return;
 
-	// 检查 TargetActor
-	if (!TargetActor)
-	{
-		return;
-	}
-
-	//  检查 GE 类是否配置
-	if (!DamageEffectClass)
-	{
-		return;
-	}
-	
 	
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+    
+	
 	if (!TargetASC)
 	{
+		if (APawn* TargetPawn = Cast<APawn>(TargetActor))
+		{
+			if (APlayerState* PS = TargetPawn->GetPlayerState())
+			{
+				TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(PS);
+			}
+		}
+	}
+
+
+	if (!TargetASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GAS Log: CauseDamage 失败！在目标 %s 及其 PlayerState 身上都没找到 ASC！"), *TargetActor->GetName());
 		return;
 	}
 
 	// 生成 GE 的实例 (Spec)
-	// GetAbilityLevel() 会返回我们在 PlayerState 中赋予技能时传入的等级 (就是人物当前等级)
+	// GetAbilityLevel() 会返回我们在 PlayerState 中赋予技能时传入的等级 
 	const float CurrentLevel = GetAbilityLevel();
 	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass, CurrentLevel);
 

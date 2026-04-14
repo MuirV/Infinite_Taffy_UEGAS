@@ -19,11 +19,11 @@ EBTNodeResult::Type UBTTaskPerformAttack::ExecuteTask(UBehaviorTreeComponent& Ow
 		AEnemyBase* Enemy = Cast<AEnemyBase>(AIController->GetPawn());
 		if (Enemy)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AI Log: Task Executed for %s"), *Enemy->GetName());
+			
 			Enemy->PerformAttack();
 			return EBTNodeResult::Succeeded;
 		}
 	}
-	UE_LOG(LogTemp, Error, TEXT("AI Log: Task Failed - No Enemy Found"));
+	
 	return EBTNodeResult::Failed;
 }
