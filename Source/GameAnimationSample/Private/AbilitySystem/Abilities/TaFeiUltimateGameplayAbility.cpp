@@ -8,6 +8,8 @@
 UTaFeiUltimateGameplayAbility::UTaFeiUltimateGameplayAbility()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	
+	bAutoPlayMontage = false;
 }
 
 void UTaFeiUltimateGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -15,6 +17,7 @@ void UTaFeiUltimateGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHa
                                                     const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
 	
 }
 

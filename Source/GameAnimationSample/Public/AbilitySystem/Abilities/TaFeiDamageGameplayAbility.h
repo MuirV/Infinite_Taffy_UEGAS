@@ -33,6 +33,9 @@ public:
 	
 	
 protected:
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Combat")
+	bool bAutoPlayMontage = true;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
@@ -49,6 +52,18 @@ protected:
 	
 	bool bInputBuffered = false; 
 	bool bComboWindowOpen = false;
+
+	bool bIsTransitioning = false;
+
+	
+	UPROPERTY()
+	class UAbilityTask_PlayMontageAndWait* MontageTask;
+
+	UPROPERTY()
+	class UAbilityTask_WaitGameplayEvent* WaitOpenTask;
+
+	UPROPERTY()
+	class UAbilityTask_WaitGameplayEvent* WaitCloseTask;
 	
 	TArray<FGameplayTag> InputSequence;
 	

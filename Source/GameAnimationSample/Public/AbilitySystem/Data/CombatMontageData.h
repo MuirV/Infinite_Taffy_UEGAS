@@ -38,6 +38,6 @@ public:
 	TArray<FTaFeiMontageInfo> CombatMontages;
 
 	
-	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
+	UFUNCTION(BlueprintPure, Category = "TaFei|Combat")
 	TArray<UAnimMontage*> GetMontagesByTag(const FGameplayTag& Tag) const;
 };

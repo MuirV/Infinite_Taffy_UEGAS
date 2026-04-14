@@ -18,10 +18,15 @@ void UTaFeiDamageGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
+	if (!bAutoPlayMontage) //是否交由cpp层面播动画，大招取消勾选
+	{
+		return; 
+	}
 	
 	ComboIndex = 1;
 	bInputBuffered = false;
 	bComboWindowOpen = false;
+	bIsTransitioning = false;
 	InputSequence.Empty();
 
 	//  记录起手的输入标签，为后续派生连招做准备 （拓展）
@@ -48,53 +53,53 @@ void UTaFeiDamageGameplayAbility::InputPressed(const FGameplayAbilitySpecHandle 
 {
 	Super::InputPressed(Handle, ActorInfo, ActivationInfo);
 
+	//预输入
+	bInputBuffered = true;
 	
-	if (bComboWindowOpen)
-	{
-		bInputBuffered = true;
-	}
 }
 
 void UTaFeiDamageGameplayAbility::PlayComboMontage()
 {
+	bIsTransitioning = false;
+
+	if (MontageTask) { MontageTask->EndTask(); }
+	if (WaitOpenTask) { WaitOpenTask->EndTask(); }
+	if (WaitCloseTask) { WaitCloseTask->EndTask(); }
 	
 	UAnimMontage* MontageToPlay = RetrieveMontageFromAvatar();
 	
 	if (!MontageToPlay)
 	{
-		
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 		return;
 	}
-
 	
-	UAbilityTask_PlayMontageAndWait* PlayMontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MontageToPlay, 1.f);
-	PlayMontageTask->OnCompleted.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageCompleted);
-	PlayMontageTask->OnInterrupted.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageInterrupted);
-	PlayMontageTask->OnCancelled.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageInterrupted);
-	PlayMontageTask->ReadyForActivation();
+	MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(this, NAME_None, MontageToPlay, 1.f);
+	MontageTask->OnCompleted.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageCompleted);
+	MontageTask->OnInterrupted.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageInterrupted);
+	MontageTask->OnCancelled.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnMontageInterrupted);
+	MontageTask->ReadyForActivation();
 
+	WaitOpenTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FTaFeiGameplayTags::Get().Event_Combo_WindowOpen);
+	WaitOpenTask->EventReceived.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnComboWindowOpened);
+	WaitOpenTask->ReadyForActivation();
 
-	UAbilityTask_WaitGameplayEvent* WaitWindowOpen = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FTaFeiGameplayTags::Get().Event_Combo_WindowOpen);
-	WaitWindowOpen->EventReceived.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnComboWindowOpened);
-	WaitWindowOpen->ReadyForActivation();
-
-	UAbilityTask_WaitGameplayEvent* WaitWindowClose = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FTaFeiGameplayTags::Get().Event_Combo_WindowClosed);
-	WaitWindowClose->EventReceived.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnComboWindowClosed);
-	WaitWindowClose->ReadyForActivation();
+	WaitCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FTaFeiGameplayTags::Get().Event_Combo_WindowClosed);
+	WaitCloseTask->EventReceived.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnComboWindowClosed);
+	WaitCloseTask->ReadyForActivation();
 }
 
 void UTaFeiDamageGameplayAbility::OnComboWindowOpened(FGameplayEventData Payload)
 {
 	bComboWindowOpen = true;
-	bInputBuffered = false; // 清空旧的连招缓存，要求玩家必须在这个新窗口内按键
+	//bInputBuffered = false; 
 }
 
 void UTaFeiDamageGameplayAbility::OnComboWindowClosed(FGameplayEventData Payload)
 {
 	bComboWindowOpen = false;
 
-	// 核心判定：在窗口期是否缓存了玩家输入，并且连段没有超过最大配置数
+	// 核心判定：在窗口期是否缓存了玩家输入，并且连段没有超过最大配置数（后续可拓展预输入）
 	if (bInputBuffered && ComboIndex < MaxComboCount)
 	{
 		
@@ -117,7 +122,12 @@ void UTaFeiDamageGameplayAbility::OnMontageCompleted()
 
 void UTaFeiDamageGameplayAbility::OnMontageInterrupted()
 {
-	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	// 修复 BUG：只有在被外力打断（比如受击、闪避）时，才结束技能。
+	// 如果是因为我们主动切连招导致的 Interrupt，放行！
+	if (!bIsTransitioning)
+	{
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
+	}
 }
 
 void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
