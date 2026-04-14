@@ -194,9 +194,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 		
 		
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, Pair.Key, ScaledDamage);
-
-		FString Msg = FString::Printf(TEXT("计算前技能基础伤害 Tag: %s, 数值: %f"), *Pair.Key.ToString(), ScaledDamage);
-		GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, Msg);
+		
 	}
 
 	if (GetAvatarActorFromActorInfo()->HasAuthority()) 
