@@ -13,17 +13,12 @@
 
 ATaFeiPlayerState::ATaFeiPlayerState()
 {
-	// Aura 动作游戏标准：提高网络同步频率，防止动画和伤害脱节
-	// ReSharper disable once CppDeprecatedEntity
-	
-
-	//实例化 ASC
 	AbilitySystemComponent = CreateDefaultSubobject<UTaFeiAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-	// 联机动作游戏推荐 Mixed 模式
+	
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
-	// 实例化 AttributeSet
+	
 	AttributeSet = CreateDefaultSubobject<UTaFeiAttributeSet>("AttributeSet");
 
 	SetNetUpdateFrequency(100.f);
