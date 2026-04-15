@@ -40,11 +40,12 @@ void UTaFeiUltimateGameplayAbility::CauseUltimateDamage(AActor* TargetActor, flo
 	}
 
 	
-	float FinalDamage = FMath::Pow(BaseDamage, 2.5f);
-	float ChargeRatio = FMath::Clamp(ChargeTime / MaxChargeTime, 0.f, 1.f);
-	float Multiplier = FMath::Lerp(1.0f, MaxChargeMultiplier, ChargeRatio); 
+	float PowerDamage = FMath::Pow(BaseDamage, 2.5f);
+	float ClampedChargeTime = FMath::Clamp(ChargeTime, 0.f, MaxChargeTime);
+	
+	float Multiplier = ChargeDamageMultiplierCurve.GetValueAtLevel(ClampedChargeTime);
 
-	FinalDamage *= Multiplier;
+	float FinalDamage = PowerDamage * Multiplier;
 
 	
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageSpecHandle, FTaFeiGameplayTags::Get().Damage_True, FinalDamage);

@@ -22,7 +22,7 @@ public:
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Ultimate")
-	float MaxChargeMultiplier = 1.5f;
+    FScalableFloat ChargeDamageMultiplierCurve;
 
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TaFei|Ultimate")
