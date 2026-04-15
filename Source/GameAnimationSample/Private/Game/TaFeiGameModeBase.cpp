@@ -5,8 +5,7 @@
 
 ATaFeiGameModeBase::ATaFeiGameModeBase()
 {
-	// 这里可以设置默认的 Pawn、PlayerController、HUD 等，
-	// 但既然你已经有了 MG_Sandbox 蓝图，推荐在蓝图的类默认值里设置，这里留空即可。
+	
 }
 
 void ATaFeiGameModeBase::NotifyCharacterDied(ACharacter* DeadCharacter)

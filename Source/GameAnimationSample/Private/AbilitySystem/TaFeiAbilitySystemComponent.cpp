@@ -19,9 +19,8 @@ void UTaFeiAbilitySystemComponent::AbilityActorInfoSet()
 {
 	// 当有 GameplayEffect 应用到自己身上时，触发本类的 ClientEffectApplied 函数
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UTaFeiAbilitySystemComponent::ClientEffectApplied);
-
-	// ================= 新增：监听无敌状态 =================
-	// 获取无敌 Tag (确保名称和你在 TaFeiGameplayTags 里定义的一致)
+	
+	// 获取无敌 Tag 
 	const FGameplayTag InvincibleTag = FGameplayTag::RequestGameplayTag(FName("State.Invincible"));
 	
 	// 绑定监听器：只有在 Tag 新增 (0->1) 或移除 (1->0) 时才会触发
@@ -37,18 +36,17 @@ void UTaFeiAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySy
 	// 把这个刚刚应用成功的 GE 里的所有 Asset Tags 提取出来
 	EffectSpec.GetAllAssetTags(TagContainer);
 	
-	// 把拿到的 Tag 广播出去！(OverlayWidgetController 此时就在监听这个)
 	EffectAssetTags.Broadcast(TagContainer);
 }
 
 void UTaFeiAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
-	// ASC 的 Owner 就是我们的 TaFeiPlayerState
+	// TaFeiPlayerState
 	AActor* OwningActor = GetOwnerActor();
 
 	if (OwningActor && OwningActor->Implements<UTaFeiPlayerInterface>())
 	{
-		// 从PlayerState获取 你有属性点吗？
+		// 从PlayerState获取 是否有属性点？
 		if (ITaFeiPlayerInterface::Execute_GetAttributePoints(OwningActor) > 0)
 		{
 			ServerUpdateAttribute(AttributeTag);
@@ -71,7 +69,7 @@ void UTaFeiAbilitySystemComponent::ServerUpdateAttribute_Implementation(const FG
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwningActor, AttributeTag, Payload);
 	if (OwningActor && OwningActor->Implements<UTaFeiPlayerInterface>())
 	{
-		// 让灵魂扣除 1 个属性点！
+		// 扣除 1 个属性点！
 		ITaFeiPlayerInterface::Execute_AddToAttributePoints(OwningActor, -1);
 	}
 	
@@ -128,10 +126,8 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 
 	// 防止重复Give（非常关键）
 	if (bStartupAbilitiesGiven) return;
-
-	// ================================
+	
 	// CommonAbilities（所有角色都有） 这里忘记传commonabilities给playerstate，不传会导致commonAbility给不到player身上
-	// ================================
 	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterData->CommonAbilities)
 	{
 		if (!AbilityClass) continue;
@@ -156,7 +152,7 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 		GiveAbility(Spec);
 	}
 
-	// ★ 核心：在这里统一标记并广播！
+	
 	// 这是在服务器端执行的，如果是局域网主机(Listen Server)玩家，UI 会在这里立刻触发
 	bStartupAbilitiesGiven = true;
 	AbilitiesGivenDelegate.Broadcast(this);
@@ -164,10 +160,9 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 
 void UTaFeiAbilitySystemComponent::OnInvincibleTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	// 安全获取肉体 (BP_SandboxCharacter)
+	
 	AActor* Avatar = GetAvatarActor();
 	
-	// 检查肉体是否存在且实现了我们的接口
 	if (Avatar && Avatar->Implements<UTaFeiCombatInterface>())
 	{
 		if (NewCount > 0)
@@ -187,8 +182,7 @@ void UTaFeiAbilitySystemComponent::OnInvincibleTagChanged(const FGameplayTag Cal
 void UTaFeiAbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
-
-	// 客户端接收到技能列表复制时，通知 UI 更新
+	
 	if (!bStartupAbilitiesGiven)
 	{
 		bStartupAbilitiesGiven = true;
@@ -201,16 +195,16 @@ void UTaFeiAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& In
 {
 	if (!InputTag.IsValid()) return;
 
-	// 遍历身上所有已被赋予的技能
+	
 	for (FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		// 检查这个技能是否绑定了这个输入 Tag
+		
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
-			// 通知技能内部：按键被按下了
+			
 			AbilitySpecInputPressed(AbilitySpec);
 
-			// 如果技能还没在运行，就尝试激活它
+			
 			if (!AbilitySpec.IsActive())
 			{
 				TryActivateAbility(AbilitySpec.Handle);
