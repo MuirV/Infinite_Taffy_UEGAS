@@ -135,7 +135,7 @@ void UTaFeiAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackDat
 	}
 
 	
-	Props.TargetASC = &Data.Target; //修复完美闪避崩溃问题
+	Props.TargetASC = &Data.Target; //修复完美闪避崩溃问题 (其实是自残期间完美闪避会崩溃，不过还是修一下)
 	
 	if(Props.TargetASC->AbilityActorInfo.IsValid() && Props.TargetASC->AbilityActorInfo->AvatarActor.IsValid())
 	{  
@@ -210,7 +210,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 					// 死亡事件发送
 					CombatInterface->Die(); 
 				}
-				// 确保这个 Log 放在 SendXPEvent(Props) 附近
+				
 				UE_LOG(LogTemp, Warning, TEXT("=== [XP_Log_1] 敌人死亡！准备发送 XP Event === 发送给目标: %s"), *Props.SourceCharacter->GetName());
 				if (Props.SourceCharacter) SendXPEvent(Props);
 			}
@@ -231,7 +231,7 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 			
 			const bool bBlock = UTaFeiAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
 			const bool bCriticalHit = UTaFeiAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
-			// 确保在 if (GetOwningActor()->HasAuthority()) 里面打这个 Log
+			
 			
 			
 			ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
@@ -254,14 +254,14 @@ void UTaFeiAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallb
 	    }
 	    if (!TaFeiPS && Props.SourceASC)
 	    {
-	        // 兜底：从 ASC 的 Owner 身上拿并强转
+	       
 	        TaFeiPS = Cast<ATaFeiPlayerState>(Props.SourceASC->GetOwnerActor());
 	    }
 
 	    //  只有当确实是 TaFeiPlayerState 时，才进行所有的接口调用！
 	    if (TaFeiPS && TaFeiPS->Implements<UTaFeiPlayerInterface>() && TaFeiPS->Implements<UTaFeiCombatInterface>())
 	    {
-	        // 这里的调用将毫无疑问地走入 TaFeiPlayerState.cpp
+	        
 	        const int32 CurrentLevel = ITaFeiCombatInterface::Execute_GetPlayerLevel(TaFeiPS);
 	        const int32 CurrentXP = ITaFeiPlayerInterface::Execute_GetXP(TaFeiPS);
 
