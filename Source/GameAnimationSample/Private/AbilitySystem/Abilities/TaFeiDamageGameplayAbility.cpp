@@ -10,7 +10,9 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "GameFramework/PlayerState.h"
 
-UTaFeiDamageGameplayAbility::UTaFeiDamageGameplayAbility()
+UTaFeiDamageGameplayAbility::UTaFeiDamageGameplayAbility() : MontageTask(nullptr), WaitOpenTask(nullptr),
+                                                             WaitCloseTask(nullptr),
+                                                             WaitInputTask(nullptr)
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
@@ -24,20 +26,27 @@ void UTaFeiDamageGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		return; 
 	}
 	
+	const UTaFeiDamageGameplayAbility* DefaultObj = GetClass()->GetDefaultObject<UTaFeiDamageGameplayAbility>();
+	if (DefaultObj)
+	{
+		CombatMontageTag = DefaultObj->CombatMontageTag; 
+		MaxComboCount = DefaultObj->MaxComboCount;      
+	}
+	
 	ComboIndex = 1;
 	bInputBuffered = false;
 	bComboWindowOpen = false;
-	bIsTransitioning = false;
+
+	
 	InputSequence.Empty();
 
-	//  记录起手的输入标签，为后续派生连招做准备 （拓展）
+	
 	if (TriggerEventData && TriggerEventData->EventTag.IsValid())
 	{
 		InputSequence.Add(TriggerEventData->EventTag);
 	}
 	else if (const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec())
 	{
-		// 遍历该技能自带的动态标签，找出属于 InputTag 类型的标签
 		for (const FGameplayTag& Tag : Spec->GetDynamicSpecSourceTags())
 		{
 			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
@@ -54,11 +63,25 @@ void UTaFeiDamageGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 
 void UTaFeiDamageGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	// 清理状态
+
+	if (MontageTask)
+	{
+		MontageTask->OnCompleted.RemoveAll(this);
+		MontageTask->OnInterrupted.RemoveAll(this);
+		MontageTask->OnCancelled.RemoveAll(this);
+		MontageTask->EndTask();
+	}
+	
+	if (WaitOpenTask) { WaitOpenTask->EndTask(); }
+	if (WaitCloseTask) { WaitCloseTask->EndTask(); }
+	if (WaitInputTask) { WaitInputTask->EndTask(); }
+	
 	ComboIndex = 1;
 	bInputBuffered = false;
 	bComboWindowOpen = false;
-
+	
+	InputSequence.Empty();
+	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
@@ -66,10 +89,6 @@ void UTaFeiDamageGameplayAbility::CancelAbility(const FGameplayAbilitySpecHandle
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateCancelAbility)
 {
-	if (MontageTask) { MontageTask->EndTask(); }
-    
-	
-	bIsTransitioning = false;
 	
 	Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
 	
@@ -95,13 +114,12 @@ void UTaFeiDamageGameplayAbility::PlayComboMontage()
 		MontageTask->OnCancelled.RemoveAll(this);
 		MontageTask->EndTask();
 	}
+	
 	if (WaitOpenTask) { WaitOpenTask->EndTask(); }
 	if (WaitCloseTask) { WaitCloseTask->EndTask(); }
-	
-	bIsTransitioning = false;
+	if (WaitInputTask) { WaitInputTask->EndTask(); }
 	
 	UAnimMontage* MontageToPlay = RetrieveMontageFromAvatar();
-	
 	if (!MontageToPlay)
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
@@ -144,21 +162,23 @@ void UTaFeiDamageGameplayAbility::OnComboWindowOpened(FGameplayEventData Payload
 void UTaFeiDamageGameplayAbility::OnComboWindowClosed(FGameplayEventData Payload)
 {
 	bComboWindowOpen = false;
+	
+	if (bInputBuffered)
+	{
+		EvaluateBranchingCombo();
 
-	// 核心判定：在窗口期是否缓存了玩家输入，并且连段没有超过最大配置数（后续可拓展预输入）
-	if (bInputBuffered && ComboIndex < MaxComboCount)
-	{
-		bIsTransitioning = true;
 		
-		ComboIndex++;            
-		bInputBuffered = false;  
+		if (!IsActive())
+		{
+			return; 
+		}
 		
-		
-		PlayComboMontage();      
-	}
-	else
-	{
-		
+		if (ComboIndex < MaxComboCount)
+		{
+			ComboIndex++;            
+			bInputBuffered = false;  
+			PlayComboMontage();      
+		}
 	}
 }
 
@@ -169,12 +189,8 @@ void UTaFeiDamageGameplayAbility::OnMontageCompleted()
 
 void UTaFeiDamageGameplayAbility::OnMontageInterrupted()
 {
-	// 修复 BUG：只有在被外力打断（比如受击、闪避）时，才结束技能。
+	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 	
-	if (!bIsTransitioning)
-	{
-		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
-	}
 }
 
 void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
@@ -289,7 +305,7 @@ void UTaFeiDamageGameplayAbility::OnComboInputReceived(FGameplayEventData Payloa
 		
 		InputSequence.Add(Payload.EventTag); 
 		
-		EvaluateBranchingCombo();
+		//EvaluateBranchingCombo();
 	}
 }
 
@@ -297,31 +313,34 @@ void UTaFeiDamageGameplayAbility::EvaluateBranchingCombo()
 {
 	const FTaFeiGameplayTags& Tags = FTaFeiGameplayTags::Get();
 
-	// 打印当前缓存的所有按键
+
 	FString SequenceStr;
 	for (const FGameplayTag& Tag : InputSequence) { SequenceStr += Tag.ToString() + TEXT(", "); }
 	UE_LOG(LogTemp, Warning, TEXT("当前按键记录 (Size:%d): [%s]"), InputSequence.Num(), *SequenceStr);
-	// 判定 1：派生路线 LMB + F
+    
+	// 派生路线 LMB + F
 	if (InputSequence.Num() == 2)
 	{
 		if (InputSequence[0].MatchesTagExact(Tags.InputTag_LMB) && 
-			InputSequence[1].MatchesTagExact(Tags.InputTag_F))
+		   InputSequence[1].MatchesTagExact(Tags.InputTag_F))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("触发派生连招！结束当前左键GA，真正唤醒 GA_ComboMixed"));
 			
-			CombatMontageTag = Tags.Abilities_Attack_ComboMixed;
-            
+			UAbilitySystemComponent* CachedASC = GetAbilitySystemComponentFromActorInfo();
 			
-			ComboIndex = 0; 
-            
+			EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 			
-			MaxComboCount = 2; 
-            
-			UE_LOG(LogTemp, Warning, TEXT("触发派生连招！切换路线为 ComboMixed"));
+			if (CachedASC)
+			{
+				FGameplayEventData Payload;
+				
+				Payload.EventTag = Tags.Event_Combo_Branch_Mixed; 
+
+				//由于我们的PlayerState是Owner，而且我们用的纯蓝图角色，Avatar
+				//UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActorFromActorInfo(), Tags.Event_Combo_Branch_Mixed, Payload);
+
+				CachedASC->HandleGameplayEvent(Tags.Event_Combo_Branch_Mixed, &Payload);
+			}
 		}
 	}
-    
-	// 判定 2：LMB + F + F
-	// 因为处于 ComboMixed 路线中，InputSequence为3时，ComboIndex 会自然 +1 变成取出第 1 个动画，
-	// 所以这里其实甚至不需要写额外逻辑，天然支持派生的后续攻击！
-	// 如果你有更多复杂的路线（比如 LMB+F+LMB），继续写 else if 增加判断即可。
 }

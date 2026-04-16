@@ -53,7 +53,7 @@ protected:
 	bool bInputBuffered = false; 
 	bool bComboWindowOpen = false;
 
-	bool bIsTransitioning = false;
+	//bool bIsTransitioning = false;
 
 	
 	UPROPERTY()

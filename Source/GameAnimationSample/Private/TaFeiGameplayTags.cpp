@@ -133,6 +133,10 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Combat_PerfectDodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Combat.PerfectDodge"), FString("Event triggered upon a successful perfect dodge"));
 
+	GameplayTags.Event_Combo_Branch_Mixed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Combo.Branch.Mixed"), FString("Event ComboMixed Activate"));
+	
+
 	/* Gameplay Cue */ 
 	GameplayTags.GameplayCue_Combat_PerfectDodge = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Combat.PerfectDodge"), FString("Play perfect dodge sound and visual"));
