@@ -36,8 +36,6 @@ void UTaFeiDamageGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	ComboIndex = 1;
 	bInputBuffered = false;
 	bComboWindowOpen = false;
-
-	
 	InputSequence.Empty();
 
 	
@@ -75,6 +73,12 @@ void UTaFeiDamageGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 	if (WaitOpenTask) { WaitOpenTask->EndTask(); }
 	if (WaitCloseTask) { WaitCloseTask->EndTask(); }
 	if (WaitInputTask) { WaitInputTask->EndTask(); }
+
+	if (bWasCancelled && ActorInfo && ActorInfo->AbilitySystemComponent.IsValid())
+	{
+		// 这一步是双重保险，防止 Super::EndAbility 因为竞态没清干净标签
+		ActorInfo->AbilitySystemComponent->RemoveLooseGameplayTag(FTaFeiGameplayTags::Get().State_Attack_Active);
+	}
 	
 	ComboIndex = 1;
 	bInputBuffered = false;
