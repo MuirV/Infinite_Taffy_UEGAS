@@ -76,7 +76,7 @@ void UTaFeiDamageGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 
 	if (bWasCancelled && ActorInfo && ActorInfo->AbilitySystemComponent.IsValid())
 	{
-		// 这一步是双重保险，防止 Super::EndAbility 因为竞态没清干净标签
+		// 防止 Super::EndAbility 因为竞态没清干净标签
 		ActorInfo->AbilitySystemComponent->RemoveLooseGameplayTag(FTaFeiGameplayTags::Get().State_Attack_Active);
 	}
 	
@@ -328,7 +328,6 @@ void UTaFeiDamageGameplayAbility::EvaluateBranchingCombo()
 		if (InputSequence[0].MatchesTagExact(Tags.InputTag_LMB) && 
 		   InputSequence[1].MatchesTagExact(Tags.InputTag_F))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("触发派生连招！结束当前左键GA，真正唤醒 GA_ComboMixed"));
 			
 			UAbilitySystemComponent* CachedASC = GetAbilitySystemComponentFromActorInfo();
 			
@@ -345,6 +344,15 @@ void UTaFeiDamageGameplayAbility::EvaluateBranchingCombo()
 
 				CachedASC->HandleGameplayEvent(Tags.Event_Combo_Branch_Mixed, &Payload);
 			}
+		}
+	}
+	if (CombatMontageTag.MatchesTagExact(Tags.Abilities_Attack_ComboMixed))
+	{
+		//  [LMB, F, F]
+		if (InputSequence.Num() == 3)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("检测到深层派生: LMB + F + F"));
+			
 		}
 	}
 }
