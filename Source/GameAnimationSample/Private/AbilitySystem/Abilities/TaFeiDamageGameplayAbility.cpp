@@ -76,7 +76,6 @@ void UTaFeiDamageGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Ha
 
 	if (bWasCancelled && ActorInfo && ActorInfo->AbilitySystemComponent.IsValid())
 	{
-		// 防止 Super::EndAbility 因为竞态没清干净标签
 		ActorInfo->AbilitySystemComponent->RemoveLooseGameplayTag(FTaFeiGameplayTags::Get().State_Attack_Active);
 	}
 	
