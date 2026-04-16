@@ -195,16 +195,17 @@ void UTaFeiAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& In
 {
 	if (!InputTag.IsValid()) return;
 
+	FGameplayEventData Payload;
+	Payload.EventTag = InputTag;
+	HandleGameplayEvent(InputTag, &Payload);
+
 	
 	for (FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
 	{
-		
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
 			
 			AbilitySpecInputPressed(AbilitySpec);
-
-			
 			if (!AbilitySpec.IsActive())
 			{
 				TryActivateAbility(AbilitySpec.Handle);

@@ -31,11 +31,23 @@ void UTaFeiDamageGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	InputSequence.Empty();
 
 	//  记录起手的输入标签，为后续派生连招做准备 （拓展）
-	if (TriggerEventData)
+	if (TriggerEventData && TriggerEventData->EventTag.IsValid())
 	{
 		InputSequence.Add(TriggerEventData->EventTag);
 	}
-
+	else if (const FGameplayAbilitySpec* Spec = GetCurrentAbilitySpec())
+	{
+		// 遍历该技能自带的动态标签，找出属于 InputTag 类型的标签
+		for (const FGameplayTag& Tag : Spec->GetDynamicSpecSourceTags())
+		{
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+			{
+				InputSequence.Add(Tag);
+				UE_LOG(LogTemp, Warning, TEXT("起手记录输入: %s"), *Tag.ToString());
+				break;
+			}
+		}
+	}
 	
 	PlayComboMontage();
 }
@@ -110,6 +122,17 @@ void UTaFeiDamageGameplayAbility::PlayComboMontage()
 	WaitCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, FTaFeiGameplayTags::Get().Event_Combo_WindowClosed);
 	WaitCloseTask->EventReceived.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnComboWindowClosed);
 	WaitCloseTask->ReadyForActivation();
+
+	// 启动输入监听 Task！监听所有 "InputTag" 子标签（
+	if (WaitInputTask) { WaitInputTask->EndTask(); } 
+	WaitInputTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this,
+	FGameplayTag::RequestGameplayTag(FName("InputTag")), 
+	nullptr, 
+	false, 
+	false
+		);
+	WaitInputTask->EventReceived.AddDynamic(this, &UTaFeiDamageGameplayAbility::OnComboInputReceived);
+	WaitInputTask->ReadyForActivation();
 }
 
 void UTaFeiDamageGameplayAbility::OnComboWindowOpened(FGameplayEventData Payload)
@@ -177,8 +200,7 @@ void UTaFeiDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 
 	if (!TargetASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GAS Log: CauseDamage 失败！在目标 %s 及其 PlayerState 身上都没找到 ASC！"), *TargetActor->GetName());
-		return;
+		return; //打中静态网格体了
 	}
 
 	// 生成 GE 的实例 (Spec)
@@ -256,4 +278,50 @@ FTaFeiTaggedMontage UTaFeiDamageGameplayAbility::GetRandomTaggedMontageFromArray
 	
 	
 	return FTaFeiTaggedMontage();
+}
+
+void UTaFeiDamageGameplayAbility::OnComboInputReceived(FGameplayEventData Payload)
+{
+	
+	if (bComboWindowOpen && !bInputBuffered)
+	{
+		bInputBuffered = true;
+		
+		InputSequence.Add(Payload.EventTag); 
+		
+		EvaluateBranchingCombo();
+	}
+}
+
+void UTaFeiDamageGameplayAbility::EvaluateBranchingCombo()
+{
+	const FTaFeiGameplayTags& Tags = FTaFeiGameplayTags::Get();
+
+	// 打印当前缓存的所有按键
+	FString SequenceStr;
+	for (const FGameplayTag& Tag : InputSequence) { SequenceStr += Tag.ToString() + TEXT(", "); }
+	UE_LOG(LogTemp, Warning, TEXT("当前按键记录 (Size:%d): [%s]"), InputSequence.Num(), *SequenceStr);
+	// 判定 1：派生路线 LMB + F
+	if (InputSequence.Num() == 2)
+	{
+		if (InputSequence[0].MatchesTagExact(Tags.InputTag_LMB) && 
+			InputSequence[1].MatchesTagExact(Tags.InputTag_F))
+		{
+			
+			CombatMontageTag = Tags.Abilities_Attack_ComboMixed;
+            
+			
+			ComboIndex = 0; 
+            
+			
+			MaxComboCount = 2; 
+            
+			UE_LOG(LogTemp, Warning, TEXT("触发派生连招！切换路线为 ComboMixed"));
+		}
+	}
+    
+	// 判定 2：LMB + F + F
+	// 因为处于 ComboMixed 路线中，InputSequence为3时，ComboIndex 会自然 +1 变成取出第 1 个动画，
+	// 所以这里其实甚至不需要写额外逻辑，天然支持派生的后续攻击！
+	// 如果你有更多复杂的路线（比如 LMB+F+LMB），继续写 else if 增加判断即可。
 }

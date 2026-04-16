@@ -59,6 +59,8 @@ public:
 	
 	FGameplayTag State_Invincible;
 
+	FGameplayTag State_Attack_Active;
+
 	// 冷却 CoolDown
 	FGameplayTag Cooldown_Ultimate;
 	FGameplayTag Cooldown_Dodge;

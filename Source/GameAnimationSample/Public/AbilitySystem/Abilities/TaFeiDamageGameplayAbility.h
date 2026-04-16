@@ -83,4 +83,14 @@ protected:
 	
 	UFUNCTION(BlueprintPure)
 	FTaFeiTaggedMontage GetRandomTaggedMontageFromArray(const TArray<FTaFeiTaggedMontage>& TaggedMontages) const;
+
+	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* WaitInputTask;
+
+	// 新增：当听到按键事件时触发的回调
+	UFUNCTION()
+	void OnComboInputReceived(FGameplayEventData Payload);
+
+	// 新增：核心派生连招判定中心
+	void EvaluateBranchingCombo();
 };

@@ -95,6 +95,9 @@ void FTaFeiGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.State_Invincible = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("State.Invincible"), FString("Character is Invincible"));
 
+	GameplayTags.State_Attack_Active = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("State.Attack.Active"), FString("Character is Attacking"));
+
 	/* Cooldown Tags */
 	GameplayTags.Cooldown_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Ultimate"), FString("Ultimate Cooldown"));
