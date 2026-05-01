@@ -96,6 +96,12 @@ void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 		);
 	}
 }
+
+void UTaFeiOverlayWidgetController::BroadcastInitialAbilities()
+{
+	OnInitializeStartupAbilities(GetTaFeiASC());
+}
+
 // 修复：形参改成 TaFeiASC
 void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySystemComponent* TaFeiASC)
 {
@@ -114,7 +120,7 @@ void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySy
        
 	   // 获取该技能当前绑定的输入 Tag
 	   Info.InputTag = TaFeiASC->GetInputTagFromSpec(AbilitySpec);
-       
+		UE_LOG(LogTemp, Warning, TEXT("InputTag: %s"), *Info.InputTag.ToString());
 	   //  广播给蓝图 UI
 	   AbilityInfoDelegate.Broadcast(Info);
 	});

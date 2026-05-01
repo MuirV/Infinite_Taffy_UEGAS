@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TaFei|Combat")
 	UAnimMontage* RetrieveMontageFromAvatar();
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	FGameplayTag StartupInputTag;
 	
 	
 protected:

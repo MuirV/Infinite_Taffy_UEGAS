@@ -83,6 +83,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="GAS|Level")
 	FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
 
+	UFUNCTION(BlueprintCallable)
+	void BroadcastInitialAbilities();
+
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
