@@ -4,10 +4,13 @@
 #include "AbilitySystem/TaFeiAbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/Abilities/TaFeiDamageGameplayAbility.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "GameAnimationSample/GameAnimationSample.h"
 #include "Interaction/TaFeiCombatInterface.h"
 #include "Interaction/TaFeiPlayerInterface.h"
+
+class UTaFeiDamageGameplayAbility;
 
 UTaFeiAbilitySystemComponent::UTaFeiAbilitySystemComponent()
 {
@@ -122,9 +125,9 @@ FGameplayTag UTaFeiAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplay
 
 FGameplayTag UTaFeiAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
 {
-	for (FGameplayTag Tag : AbilitySpec.GetDynamicSpecSourceTags()) //TODO: AbilitySpec.DynamicAbilityTags
+	for (FGameplayTag Tag : AbilitySpec.GetDynamicSpecSourceTags()) //Previous: AbilitySpec.DynamicAbilityTags
 	{
-		// 匹配你项目里的 InputTag 父级标签 (例如 InputTag.LMB)
+		
 		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
 		{
 			
@@ -139,7 +142,7 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 {
 	if (!CharacterData) return;
 
-	// 防止重复Give（非常关键）
+	
 	if (bStartupAbilitiesGiven) return;
 	
 	// CommonAbilities（所有角色都有） 这里忘记传commonabilities给playerstate，不传会导致commonAbility给不到player身上
@@ -148,7 +151,15 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 		if (!AbilityClass) continue;
 
 		FGameplayAbilitySpec Spec(AbilityClass, Level);
-		GiveAbility(Spec);
+		if (const UTaFeiDamageGameplayAbility* TaFeiGA = Cast<UTaFeiDamageGameplayAbility>(Spec.Ability))
+		{
+			if (TaFeiGA->StartupInputTag.IsValid())
+			{
+				Spec.GetDynamicSpecSourceTags().AddTag(TaFeiGA->StartupInputTag);
+				GiveAbility(Spec);
+			}
+		}
+		
 	}
 	
 	const FTaFeiCharacterClassDefaultInfo& ClassInfo = CharacterData->GetClassDefaultInfo(CharacterClass);
@@ -168,7 +179,6 @@ void UTaFeiAbilitySystemComponent::AddStartupAbilitiesFromData(const UCharacterC
 	}
 
 	
-	// 这是在服务器端执行的，如果是局域网主机(Listen Server)玩家，UI 会在这里立刻触发
 	bStartupAbilitiesGiven = true;
 	AbilitiesGivenDelegate.Broadcast(this);
 }
