@@ -75,14 +75,25 @@ void UTaFeiAbilitySystemComponent::ServerUpdateAttribute_Implementation(const FG
 	
 }
 
-// 在 TaFeiAbilitySystemComponent.cpp 末尾补充以下实现：
-
 void UTaFeiAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
 {
-	// 锁定技能列表，防止在遍历时被修改引发崩溃
 	FScopedAbilityListLock ActiveScopeLock(*this);
+
 	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
+		if (AbilitySpec.Ability)
+		{
+			// 
+			const FGameplayTagContainer& Tags = AbilitySpec.Ability->AbilityTags;
+
+			UE_LOG(LogTemp, Warning, TEXT("ForEachAbility进入了"));
+			
+			for (const FGameplayTag& Tag : Tags)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Tag: %s"), *Tag.ToString());
+			}
+		}
+
 		if (!Delegate.ExecuteIfBound(AbilitySpec))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Failed to execute delegate in %hs"), __FUNCTION__);
@@ -94,12 +105,14 @@ FGameplayTag UTaFeiAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplay
 {
 	if (AbilitySpec.Ability)
 	{
-		const FGameplayTagContainer& Tags = AbilitySpec.Ability->GetAssetTags(); //API  换用TagContainer
+		const FGameplayTagContainer& Tags = AbilitySpec.Ability->AbilityTags; //若使用TagContainer会导致AbilityTag，也就是技能UI图标无法初始化，后续冷却也无法进一步显示
 
 		for (const FGameplayTag& Tag : Tags)
 		{
 			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("Ability: %s"), *AbilitySpec.Ability->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("AbilityTags Num: %d"), AbilitySpec.Ability->AbilityTags.Num());
 				return Tag;
 			}
 		}
@@ -109,12 +122,14 @@ FGameplayTag UTaFeiAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplay
 
 FGameplayTag UTaFeiAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
 {
-	for (FGameplayTag Tag : AbilitySpec.GetDynamicSpecSourceTags())
+	for (FGameplayTag Tag : AbilitySpec.GetDynamicSpecSourceTags()) //TODO: AbilitySpec.DynamicAbilityTags
 	{
 		// 匹配你项目里的 InputTag 父级标签 (例如 InputTag.LMB)
 		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
 		{
+			
 			return Tag;
+			
 		}
 	}
 	return FGameplayTag();

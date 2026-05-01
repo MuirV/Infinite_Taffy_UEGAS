@@ -158,7 +158,7 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 	
 	if (!AvatarPawn->IsPlayerControlled())
 	{
-		return; // ❗关键：阻止敌人进入
+		return; //阻止敌人进入
 	}
 
 	// 如果已经初始化过，或者组件/Pawn无效，直接退出
@@ -166,13 +166,13 @@ void ATaFeiPlayerState::InitializeGASForPawn(APawn* AvatarPawn)
 	
 	if (AbilitySystemComponent && AvatarPawn)
 	{
-		// GAS 绑定灵魂(Owner)和肉体(Avatar)
+		// GAS 绑定Owner和Avatar
 		AbilitySystemComponent->InitAbilityActorInfo(this, AvatarPawn);
 
-		//通知我们自定义的 ASC 去绑定它自己的 UI 委托！
+		//通知自定义的 ASC 去绑定它自己的 UI 委托！
 		Cast<UTaFeiAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 		
-		// 锁上，确保这一段肉体只绑定一次
+		// 确保只绑定一次
 		bGASInitialized = true;
 		
 	}

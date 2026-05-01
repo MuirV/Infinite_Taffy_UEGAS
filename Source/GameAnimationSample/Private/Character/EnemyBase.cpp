@@ -104,7 +104,7 @@ void AEnemyBase::BeginPlay()
 	
 	InitAbilityActorInfo();
 
-	UE_LOG(LogTemp, Error, TEXT("Enemy BeginPlay Class = %d"), (int32)CharacterClass);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy BeginPlay Class = %d"), (int32)CharacterClass);
 	
 	// 给血条 UI 设置控制器 
 	if (UTaFeiUserWidget* TaFeiUserWidget = Cast<UTaFeiUserWidget>(HealthBar->GetUserWidgetObject()))
