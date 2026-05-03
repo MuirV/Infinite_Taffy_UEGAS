@@ -127,7 +127,7 @@ void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySy
 
 	   if (AbilityTag.IsValid())
 	   {
-		   
+		   //ASC GetAbility()&InputTag()-> HUD BroadcastInitialAbilities()-> 这里获取FGAAbilityInfo DatatAsset信息
 		   FGAAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
       
 		   Info.InputTag = InputTag;
