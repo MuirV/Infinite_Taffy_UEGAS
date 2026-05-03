@@ -86,6 +86,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BroadcastInitialAbilities();
 
+	bool bInitialAbilitiesBroadcasted = false;
 protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")

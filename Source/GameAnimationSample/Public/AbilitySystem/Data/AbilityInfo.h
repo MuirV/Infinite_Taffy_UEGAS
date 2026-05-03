@@ -35,7 +35,6 @@ class GAMEANIMATIONSAMPLE_API UAbilityInfo : public UDataAsset
 {
 	GENERATED_BODY()
 
-	
 public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AbilityInformation")

@@ -39,6 +39,11 @@ void ATaFeiHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySys
 	UTaFeiOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
 	OverlayWidget->SetWidgetController(WidgetController);
-	WidgetController->BroadcastInitialValues();
+	
 	Widget->AddToViewport(); // UE5.3及之前还不需要包含 UMG 模块 AddToViewport
+	
+	WidgetController->BindCallbacksToDependencies();
+	
+	WidgetController->BroadcastInitialValues(); //微调
+	WidgetController->BroadcastInitialAbilities();//fixed 技能UI bug
 }

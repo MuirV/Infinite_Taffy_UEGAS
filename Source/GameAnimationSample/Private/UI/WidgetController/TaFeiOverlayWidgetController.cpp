@@ -18,6 +18,7 @@ void UTaFeiOverlayWidgetController::BroadcastInitialValues()
 
 	OnUltimateEnergyChanged.Broadcast(GetTaFeiAS()->GetUltimateEnergy());
 	OnMaxUltimateEnergyChanged.Broadcast(GetTaFeiAS()->GetMaxUltimateEnergy());
+	
 }
 
 void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
@@ -65,16 +66,18 @@ void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 	//  绑定技能与屏幕消息
 	if (GetTaFeiASC())
 	{
-		// --- 修复：绑定初始技能的监听，防止 UI 没反应 ---
+		
+		GetTaFeiASC()->AbilitiesGivenDelegate.AddUObject(
+			this,
+			&UTaFeiOverlayWidgetController::OnInitializeStartupAbilities
+			);	
+		
+		// 不等 Delegate，直接在这里补调一次，蓝图里的 delay 可以删掉了 cc 4.6
 		if (GetTaFeiASC()->bStartupAbilitiesGiven)
 		{
 			OnInitializeStartupAbilities(GetTaFeiASC());
 		}
-		else
-		{
-			GetTaFeiASC()->AbilitiesGivenDelegate.AddUObject(this, &UTaFeiOverlayWidgetController::OnInitializeStartupAbilities);
-		}
-
+		
 		// 监听 ASC 广播过来的 EffectAssetTags
 		GetTaFeiASC()->EffectAssetTags.AddLambda(
 		   [this](const FGameplayTagContainer& AssetTags)
@@ -99,30 +102,40 @@ void UTaFeiOverlayWidgetController::BindCallbacksToDependencies()
 
 void UTaFeiOverlayWidgetController::BroadcastInitialAbilities()
 {
+	//if (bInitialAbilitiesBroadcasted) return;
+
+	if (!GetTaFeiASC() || !GetTaFeiASC()->bStartupAbilitiesGiven || !AbilityInfo) 
+	{
+		return;
+	}
+
+	//bInitialAbilitiesBroadcasted = true;
 	OnInitializeStartupAbilities(GetTaFeiASC());
 }
 
-// 修复：形参改成 TaFeiASC
 void UTaFeiOverlayWidgetController::OnInitializeStartupAbilities(UTaFeiAbilitySystemComponent* TaFeiASC)
 {
-	if (!TaFeiASC->bStartupAbilitiesGiven) return;
+	if (!TaFeiASC->bStartupAbilitiesGiven || !AbilityInfo) return;
 
 	FForEachAbility BroadcastDelegate;
-    
-	// 修复：Lambda 捕获此处的 TaFeiASC
 	BroadcastDelegate.BindLambda([this, TaFeiASC](const FGameplayAbilitySpec& AbilitySpec)
 	{
-	   //获取该技能的 Tag
+	   
 	   FGameplayTag AbilityTag = TaFeiASC->GetAbilityTagFromSpec(AbilitySpec);
-       
-	   // 从你配置好的 AbilityInfo 中查找 UI 信息
-	   FGAAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
-       
-	   // 获取该技能当前绑定的输入 Tag
-	   Info.InputTag = TaFeiASC->GetInputTagFromSpec(AbilitySpec);
-		UE_LOG(LogTemp, Warning, TEXT("InputTag: %s"), *Info.InputTag.ToString());
-	   //  广播给蓝图 UI
-	   AbilityInfoDelegate.Broadcast(Info);
+		
+	   FGameplayTag InputTag = TaFeiASC->GetInputTagFromSpec(AbilitySpec);
+
+	   if (AbilityTag.IsValid())
+	   {
+		   
+		   FGAAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+      
+		   Info.InputTag = InputTag;
+		
+		   UE_LOG(LogTemp, Warning, TEXT("广播技能: %s, 输入: %s"), *AbilityTag.ToString(), *InputTag.ToString());
+
+		   AbilityInfoDelegate.Broadcast(Info);
+	   }
 	});
     
 	TaFeiASC->ForEachAbility(BroadcastDelegate);
